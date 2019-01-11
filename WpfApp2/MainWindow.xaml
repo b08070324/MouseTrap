@@ -14,15 +14,15 @@
         <Style x:Key="outputGrid" TargetType="{x:Type DataGrid}" BasedOn="{StaticResource {x:Type DataGrid}}">
             <Setter Property="Grid.ColumnSpan" Value="2" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Path=Items.Count, RelativeSource={RelativeSource Self}}" Value="0">
+                <Trigger Property="SelectedIndex" Value="-1">
                     <Setter Property="Grid.ColumnSpan" Value="3" />
-                </DataTrigger>
+                </Trigger>
             </Style.Triggers>
         </Style>
         <Style x:Key="selectedGrid" TargetType="{x:Type Grid}">
             <Setter Property="Visibility" Value="Visible" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Path=Items.Count, ElementName=outputGrid}" Value="0">
+                <DataTrigger Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}" Value="-1">
                     <Setter Property="Visibility" Value="Hidden" />
                 </DataTrigger>
             </Style.Triggers>

@@ -29,11 +29,6 @@ namespace WpfApp2
 		private BatchedObservableCollection<WindowInformation> WindowInfo { get; set; }
 		private CollectionViewSource CollectionViewSource { get; set; }
 
-		// Worker thread
-		//PollingTask PollingTask = new PollingTask(500);
-		//Action pollingWork;
-		//Action pollingFinished;
-
 		// To allow updates to UI thread from worker thread
 		// Can use either SynchronizationContext and SynchronizationContext.Send()
 		// or BindingOperations.EnableCollectionSynchronization with a larger perf overhead
@@ -51,18 +46,6 @@ namespace WpfApp2
 			CollectionViewSource.Filter += CollectionViewSource_Filter;
 			outputGrid.ItemsSource = CollectionViewSource.View;
 			outputGrid.SelectedCellsChanged += OutputGrid_SelectedCellsChanged;
-
-			//// Set up polling actions
-			//pollingWork = () =>
-			//{
-			//	System.Diagnostics.Debug.WriteLine("Poll system");
-			//	UpdateWindowInformation();
-			//};
-
-			//pollingFinished = () =>
-			//{
-			//	System.Diagnostics.Debug.WriteLine("Stopped");
-			//};
 		}
 
 		private void OutputGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
@@ -98,19 +81,6 @@ namespace WpfApp2
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
 			UpdateWindowInformation();
-			//if (PollingTask.IsRunning)
-			//{
-			//	PollingTask.StopPolling();
-			//	actionButton.Content = "_Start";
-			//}
-			//else
-			//{
-			//	if (PollingTask.StartPolling(pollingWork, pollingFinished))
-			//	{
-			//		System.Diagnostics.Debug.WriteLine("Running");
-			//		actionButton.Content = "_Stop";
-			//	}
-			//}
 		}
 
 		private void UpdateWindowInformation()
