@@ -28,6 +28,7 @@ namespace WpfApp2
 		private List<WindowInformation> TempWindowInfo { get; set; }
 		private BatchedObservableCollection<WindowInformation> WindowInfo { get; set; }
 		private CollectionViewSource CollectionViewSource { get; set; }
+		public WindowInfoModel WindowInfoModel { get; set; }
 
 		// To allow updates to UI thread from worker thread
 		// Can use either SynchronizationContext and SynchronizationContext.Send()
@@ -46,23 +47,27 @@ namespace WpfApp2
 			CollectionViewSource.Filter += CollectionViewSource_Filter;
 			outputGrid.ItemsSource = CollectionViewSource.View;
 			outputGrid.SelectedCellsChanged += OutputGrid_SelectedCellsChanged;
+			WindowInfoModel = new WindowInfoModel();
 		}
 
 		private void OutputGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
 		{
-            // Return if no cells selected
+			// Return if no cells selected
 			if (e.AddedCells.Count < 1) return;
 
-            // Get selected item
-            var item = e.AddedCells.First().Item as WindowInformation;
-			if (item == null) return;
+			// Get selected item
+			var item = e.AddedCells.First().Item as WindowInformation;
+			if (item == null)
+			{
+				return;
+			}
 
-            // Update display
-            selectedTitle.Text = string.Format("{0} - {1}", item.ProcessName, item.Name);
-            selectedTop.Text = item.Top.ToString();
-			selectedLeft.Text = item.Left.ToString();
-			selectedWidth.Text = (item.Right- item.Left).ToString();
-			selectedHeight.Text = (item.Bottom - item.Top).ToString();
+			// Update view model
+			WindowInfoModel.Title = string.Format("{0} - {1}", item.ProcessName, item.Name);
+			WindowInfoModel.Top = item.Top;
+			WindowInfoModel.Left = item.Left;
+			WindowInfoModel.Width = (item.Right - item.Left);
+			WindowInfoModel.Height = (item.Bottom - item.Top);
 		}
 
 		private void ProcessNameInput_TextChanged(object sender, TextChangedEventArgs e)
@@ -73,9 +78,9 @@ namespace WpfApp2
 		private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
 		{
 			var item = e.Item as WindowInformation;
-            var titleMatches = item.Name.ToLower().Contains(processNameInput.Text);
-            var procNameMatches = item.ProcessName.ToLower().Contains(processNameInput.Text);
-            e.Accepted = titleMatches || procNameMatches;
+			var titleMatches = item.Name.ToLower().Contains(processNameInput.Text);
+			var procNameMatches = item.ProcessName.ToLower().Contains(processNameInput.Text);
+			e.Accepted = titleMatches || procNameMatches;
 		}
 
 		private void Button_Click(object sender, RoutedEventArgs e)

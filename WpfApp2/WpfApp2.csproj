@@ -67,8 +67,11 @@
     </ApplicationDefinition>
     <Compile Include="BatchedObservableCollection.cs" />
     <Compile Include="PollingTask.cs" />
+    <Compile Include="StyleDictionary.cs" />
     <Compile Include="Win32Interop.cs" />
+    <Compile Include="WindowInfoModel.cs" />
     <Compile Include="WindowInformation.cs" />
+    <Compile Include="WindowInformationComparer.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
