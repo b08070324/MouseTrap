@@ -44,7 +44,7 @@
 				  VerticalGridLinesBrush="{DynamicResource DataGrid.Lines}">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Name" Binding="{Binding Name}" ElementStyle="{StaticResource TrimmedText}" Width="*" />
-				<DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="150" />
+				<DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="100" />
 				<DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="50" />
 			</DataGrid.Columns>
 		</DataGrid>
@@ -59,7 +59,7 @@
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
 
-				<Grid Width="100" Height="50">
+				<Grid Width="70" Height="50">
 					<Grid.RowDefinitions>
 						<RowDefinition Height="*" />
 						<RowDefinition Height="*" />
@@ -70,10 +70,10 @@
 						<ColumnDefinition Width="*"/>
 					</Grid.ColumnDefinitions>
 
-					<TextBlock Name="selectedTop" Text="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
-					<TextBlock Name="selectedLeft" Text="0" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" />
-					<TextBlock Name="selectedRight" Text="0" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" />
-					<TextBlock Name="selectedBottom" Text="0" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
+					<TextBlock Name="selectedTop" Text="1000" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
+					<TextBlock Name="selectedLeft" Text="1000" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+					<TextBlock Name="selectedRight" Text="1000" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+					<TextBlock Name="selectedBottom" Text="1000" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 				</Grid>
 
 				<DataGrid Grid.Row="1" Name="selectedInfo"></DataGrid>
