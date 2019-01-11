@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WpfApp2
 {
@@ -16,76 +11,42 @@ namespace WpfApp2
 		private int width = 0;
 		private int height = 0;
 
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		private void SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+		{
+			field = value;
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
 		public string Title
 		{
-			get
-			{
-				return title;
-			}
-			set
-			{
-				title = value;
-				NotifyPropertyChanged();
-			}
+			get { return title; }
+			set { SetField(ref title, value); }
 		}
 
 		public int Top
 		{
-			get
-			{
-				return top;
-			}
-			set
-			{
-				top = value;
-				NotifyPropertyChanged();
-			}
+			get { return top; }
+			set { SetField(ref top, value); }
 		}
 
 		public int Left
 		{
-			get
-			{
-				return left;
-			}
-			set
-			{
-				left = value;
-				NotifyPropertyChanged();
-			}
+			get { return left; }
+			set { SetField(ref left, value); }
 		}
 
 		public int Width
 		{
-			get
-			{
-				return width;
-			}
-			set
-			{
-				width = value;
-				NotifyPropertyChanged();
-			}
+			get { return width; }
+			set { SetField(ref width, value); }
 		}
 
 		public int Height
 		{
-			get
-			{
-				return height;
-			}
-			set
-			{
-				height = value;
-				NotifyPropertyChanged();
-			}
-		}
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+			get { return height; }
+			set { SetField(ref height, value); }
 		}
 	}
 }
