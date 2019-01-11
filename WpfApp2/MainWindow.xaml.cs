@@ -67,16 +67,23 @@ namespace WpfApp2
 
 		private void OutputGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
 		{
+            // Return if no cells selected
 			if (e.AddedCells.Count < 1) return;
-			var item = e.AddedCells.First().Item as WindowInformation;
+
+            // Adjust layout
+            outputGrid.SetValue(Grid.ColumnSpanProperty, 2);
+            selectedGrid.Visibility = Visibility.Visible;
+
+            // Get selected item
+            var item = e.AddedCells.First().Item as WindowInformation;
 			if (item == null) return;
 
-			selectedTop.Text = item.Top.ToString();
+            // Update display
+            selectedTitle.Text = string.Format("{0} - {1}", item.ProcessName, item.Name);
+            selectedTop.Text = item.Top.ToString();
 			selectedLeft.Text = item.Left.ToString();
-			selectedRight.Text = (item.Right- item.Left).ToString();
-			selectedBottom.Text = (item.Bottom - item.Top).ToString();
-
-			selectedInfo.ItemsSource = new StyleDictionary(item.ExStyle);
+			selectedWidth.Text = (item.Right- item.Left).ToString();
+			selectedHeight.Text = (item.Bottom - item.Top).ToString();
 		}
 
 		private void ProcessNameInput_TextChanged(object sender, TextChangedEventArgs e)
@@ -87,7 +94,9 @@ namespace WpfApp2
 		private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
 		{
 			var item = e.Item as WindowInformation;
-			e.Accepted = item.ProcessName.ToLower().Contains(processNameInput.Text);
+            var titleMatches = item.Name.ToLower().Contains(processNameInput.Text);
+            var procNameMatches = item.ProcessName.ToLower().Contains(processNameInput.Text);
+            e.Accepted = titleMatches || procNameMatches;
 		}
 
 		private void Button_Click(object sender, RoutedEventArgs e)

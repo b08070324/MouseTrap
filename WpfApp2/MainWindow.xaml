@@ -3,84 +3,101 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         xmlns:local="clr-namespace:WpfApp2"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" MinHeight="350" Width="600" MinWidth="600" WindowStartupLocation="CenterScreen">
-	<Window.Resources>
-		<SolidColorBrush x:Key="DataGrid.Lines" Color="#FFC8C8C8"/>
-		<Style x:Key="TrimmedText" TargetType="{x:Type TextBlock}">
-			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-		</Style>
-	</Window.Resources>
-	<Grid>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto"/>
-			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="260"/>
-		</Grid.ColumnDefinitions>
+    <Window.Resources>
+        <Style x:Key="TrimmedText" TargetType="{x:Type TextBlock}">
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="260"/>
+        </Grid.ColumnDefinitions>
 
-		<Grid.RowDefinitions>
-			<RowDefinition Height="40" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-		<Button Name="actionButton" Margin="4" Content="_Get Active Windows" Click="Button_Click">
-			<Button.ContentTemplate>
-				<DataTemplate>
-					<AccessText Margin="24,0,24,0" Text="{Binding}" />
-				</DataTemplate>
-			</Button.ContentTemplate>
-		</Button>
 
-		<TextBox Name="processNameInput" 
+        <Button Name="actionButton" Margin="4" Content="_Refresh" Click="Button_Click" ToolTip="Refresh program list">
+            <Button.ContentTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="16,0">
+                        <emoji:TextBlock Text="♻️" FontSize="18" VerticalAlignment="Center" />
+                    </StackPanel>
+                </DataTemplate>
+            </Button.ContentTemplate>
+        </Button>
+
+        <TextBox Name="processNameInput" 
 				 Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4,4,4" Padding="4" 
-				 VerticalContentAlignment="Center" TextWrapping="Wrap" Text="" 
+				 VerticalContentAlignment="Center" 
+                 TextWrapping="Wrap" 
+                 FontSize="18"
+                 Text="" 
 				 TextChanged="ProcessNameInput_TextChanged" />
 
-		<DataGrid Name="outputGrid" 
-				  Grid.Row="1" Grid.ColumnSpan="2" Margin="4,0,4,4" 
+        <DataGrid Name="outputGrid" 
+				  Grid.Row="1"
+                  Grid.ColumnSpan="3"
+                  Margin="4,0,4,4" 
 				  IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single"
-				  HorizontalGridLinesBrush="{DynamicResource DataGrid.Lines}" 
-				  VerticalGridLinesBrush="{DynamicResource DataGrid.Lines}">
-			<DataGrid.Columns>
-				<DataGridTextColumn Header="Name" Binding="{Binding Name}" ElementStyle="{StaticResource TrimmedText}" Width="*" />
-				<DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="100" />
-				<DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="50" />
-			</DataGrid.Columns>
-		</DataGrid>
+                  HeadersVisibility="Column"
+				  HorizontalGridLinesBrush="{x:Null}" 
+				  VerticalGridLinesBrush="{x:Null}" 
+                  Background="{x:Null}" BorderBrush="#FFC8C8C8">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" ElementStyle="{StaticResource TrimmedText}" Width="*" />
+                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="100" />
+                <DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="50" />
+            </DataGrid.Columns>
+        </DataGrid>
 
-		<Border Grid.Column="2" Grid.Row="1" Margin="0,0,4,4" Padding="4"
-				BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" 
-				BorderThickness="1">
+        <Grid Name="selectedGrid" 
+              Visibility="Collapsed"
+              Grid.Column="2" 
+              Grid.Row="1" 
+              Margin="4,0,4,4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="70" />
-					<RowDefinition Height="*" />
-				</Grid.RowDefinitions>
+            <emoji:TextBlock 
+                Name="selectedTitle" 
+                FontSize="20" 
+                TextTrimming="CharacterEllipsis" 
+                Text="Select a program" />
 
-				<Grid Width="70" Height="50">
-					<Grid.RowDefinitions>
-						<RowDefinition Height="*" />
-						<RowDefinition Height="*" />
-						<RowDefinition Height="*" />
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="*" />
-						<ColumnDefinition Width="*"/>
-					</Grid.ColumnDefinitions>
+            <StackPanel Orientation="Vertical" Grid.Row="1">
+                <TextBlock>Dimensions</TextBlock>
+                <Grid Width="150" Height="100" VerticalAlignment="Top">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="4*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
 
-					<TextBlock Name="selectedTop" Text="1000" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
-					<TextBlock Name="selectedLeft" Text="1000" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" />
-					<TextBlock Name="selectedRight" Text="1000" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" />
-					<TextBlock Name="selectedBottom" Text="1000" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
-				</Grid>
+                    <TextBlock Name="selectedTop" Text="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Column="1" />
+                    <TextBlock Name="selectedLeft" Text="0" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <Border Grid.Row="1" Grid.Column="1" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1" Margin="4"></Border>
+                    <TextBlock Name="selectedHeight" Text="0" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    <TextBlock Name="selectedWidth" Text="0" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" />
+                </Grid>
+            </StackPanel>
 
-				<DataGrid Grid.Row="1" Name="selectedInfo"></DataGrid>
+        </Grid>
 
-			</Grid>
-
-		</Border>
-
-	</Grid>
+    </Grid>
 </Window>
