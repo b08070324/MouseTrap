@@ -70,10 +70,6 @@ namespace WpfApp2
             // Return if no cells selected
 			if (e.AddedCells.Count < 1) return;
 
-            // Adjust layout
-            outputGrid.SetValue(Grid.ColumnSpanProperty, 2);
-            selectedGrid.Visibility = Visibility.Visible;
-
             // Get selected item
             var item = e.AddedCells.First().Item as WindowInformation;
 			if (item == null) return;
