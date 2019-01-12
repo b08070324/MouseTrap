@@ -5,6 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
 		xmlns:local="clr-namespace:WpfApp2"
+		xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=PresentationFramework"
 		mc:Ignorable="d"
 		Title="MainWindow" Height="400" MinHeight="300" Width="700" MinWidth="500" WindowStartupLocation="CenterScreen">
 	<Window.Resources>
@@ -14,29 +15,47 @@
 		<Style x:Key="outputGrid" TargetType="{x:Type DataGrid}" BasedOn="{StaticResource {x:Type DataGrid}}">
 			<Setter Property="Grid.ColumnSpan" Value="1" />
 			<Style.Triggers>
-				<Trigger Property="SelectedIndex" Value="-1">
-					<Setter Property="Grid.ColumnSpan" Value="2" />
-				</Trigger>
+				<MultiDataTrigger>
+					<MultiDataTrigger.Conditions>
+						<Condition Value="-1" Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}"/>
+						<Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self}, Path=(componentModel:DesignerProperties.IsInDesignMode)}"/>
+					</MultiDataTrigger.Conditions>
+					<MultiDataTrigger.Setters>
+						<Setter Property="Grid.ColumnSpan" Value="2" />
+					</MultiDataTrigger.Setters>
+				</MultiDataTrigger>
 			</Style.Triggers>
 		</Style>
 		<Style x:Key="searchBox" TargetType="{x:Type Grid}">
 			<Setter Property="Grid.ColumnSpan" Value="1" />
 			<Style.Triggers>
-				<DataTrigger Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}" Value="-1">
-					<Setter Property="Grid.ColumnSpan" Value="2" />
-				</DataTrigger>
+				<MultiDataTrigger>
+					<MultiDataTrigger.Conditions>
+						<Condition Value="-1" Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}"/>
+						<Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self}, Path=(componentModel:DesignerProperties.IsInDesignMode)}"/>
+					</MultiDataTrigger.Conditions>
+					<MultiDataTrigger.Setters>
+						<Setter Property="Grid.ColumnSpan" Value="2" />
+					</MultiDataTrigger.Setters>
+				</MultiDataTrigger>
 			</Style.Triggers>
 		</Style>
 		<Style x:Key="selectedPanel" TargetType="{x:Type StackPanel}">
 			<Setter Property="Visibility" Value="Visible" />
 			<Style.Triggers>
-				<DataTrigger Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}" Value="-1">
-					<Setter Property="Visibility" Value="Hidden" />
-				</DataTrigger>
+				<MultiDataTrigger>
+					<MultiDataTrigger.Conditions>
+						<Condition Value="-1" Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}"/>
+						<Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self}, Path=(componentModel:DesignerProperties.IsInDesignMode)}"/>
+					</MultiDataTrigger.Conditions>
+					<MultiDataTrigger.Setters>
+						<Setter Property="Visibility" Value="Hidden" />
+					</MultiDataTrigger.Setters>
+				</MultiDataTrigger>
 			</Style.Triggers>
 		</Style>
 	</Window.Resources>
-	<Grid Margin="16">
+	<Grid Margin="16,12,16,16">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
@@ -53,12 +72,25 @@
 			Orientation="Vertical">
 			<emoji:TextBlock 
 				FontSize="20" 
-				TextTrimming="CharacterEllipsis" 
-				Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Title}" />
+				TextTrimming="CharacterEllipsis">
+				<TextBlock.Text>
+					<Binding 
+						RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
+						Path="WindowInfoModel.Title" 
+						FallbackValue="Window title" />
+				</TextBlock.Text>
+			</emoji:TextBlock>
 			<TextBlock 
 				FontSize="12" 
 				LineHeight="24"
-				Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Process}" />
+				TextTrimming="CharacterEllipsis">
+				<TextBlock.Text>
+					<Binding 
+						RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
+						Path="WindowInfoModel.Process" 
+						FallbackValue="Process name" />
+				</TextBlock.Text>
+			</TextBlock>
 		</StackPanel>
 
 		<DataGrid Name="outputGrid" 
@@ -75,7 +107,6 @@
 				  BorderBrush="#FFABADB3">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Name" Binding="{Binding Name}" ElementStyle="{StaticResource TrimmedText}" Width="*" />
-				<DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="100" />
 				<DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="50" />
 			</DataGrid.Columns>
 		</DataGrid>
@@ -130,11 +161,11 @@
 					<ColumnDefinition Width="1*"/>
 				</Grid.ColumnDefinitions>
 
-				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Top}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Column="1" ></TextBlock>
-				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Left}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
+				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Top, FallbackValue=0}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Column="1" ></TextBlock>
+				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Left, FallbackValue=0}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
 				<Border Grid.Row="1" Grid.Column="1" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1" Margin="4" />
-				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Height}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
-				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Width}" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" />
+				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Height, FallbackValue=0}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
+				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Width, FallbackValue=0}" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" />
 			</Grid>
 		</StackPanel>
 
