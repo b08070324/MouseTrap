@@ -5,7 +5,8 @@ namespace WpfApp2
 {
 	public class WindowInfoModel : INotifyPropertyChanged
 	{
-		private string title = "Program title";
+		private string title = "Select a program";
+		private string process = "";
 		private int top = 0;
 		private int left = 0;
 		private int width = 0;
@@ -23,6 +24,12 @@ namespace WpfApp2
 		{
 			get { return title; }
 			set { SetField(ref title, value); }
+		}
+
+		public string Process
+		{
+			get { return process; }
+			set { SetField(ref process, value); }
 		}
 
 		public int Top

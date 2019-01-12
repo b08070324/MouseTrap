@@ -12,6 +12,7 @@ namespace WpfApp2
 		public string Name { get; set; }
 		public uint ProcessId { get; set; }
 		public string ProcessName { get; set; }
+		public string FullProcessName { get; set; }
 		public int Left { get; set; }
 		public int Top { get; set; }
 		public int Right { get; set; }

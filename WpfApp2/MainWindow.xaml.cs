@@ -48,6 +48,7 @@ namespace WpfApp2
 			outputGrid.ItemsSource = CollectionViewSource.View;
 			outputGrid.SelectedCellsChanged += OutputGrid_SelectedCellsChanged;
 			WindowInfoModel = new WindowInfoModel();
+			UpdateWindowInformation();
 		}
 
 		private void OutputGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
@@ -63,7 +64,8 @@ namespace WpfApp2
 			}
 
 			// Update view model
-			WindowInfoModel.Title = string.Format("{0} - {1}", item.ProcessName, item.Name);
+			WindowInfoModel.Title = item.Name;
+			WindowInfoModel.Process = item.FullProcessName;
 			WindowInfoModel.Top = item.Top;
 			WindowInfoModel.Left = item.Left;
 			WindowInfoModel.Width = (item.Right - item.Left);
@@ -130,6 +132,10 @@ namespace WpfApp2
 			// Get process info
 			Win32Interop.GetWindowThreadProcessId(hWnd, out uint procId);
 			var process = Process.GetProcessById((int)procId);
+			var sb = new StringBuilder(1024);
+			uint len = (uint)sb.Capacity + 1;
+			Win32Interop.QueryFullProcessImageName(process.Handle, 0, sb, ref len);
+
 
 			// Get window size and position
 			Win32Interop.GetWindowRect(hWnd, out Win32Interop.Rect rect);
@@ -144,6 +150,7 @@ namespace WpfApp2
 				Name = title,
 				ProcessId = procId,
 				ProcessName = process.ProcessName,
+				FullProcessName = sb.ToString(),
 				Bottom = rect.Bottom,
 				Left = rect.Left,
 				Right = rect.Right,

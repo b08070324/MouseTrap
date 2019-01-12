@@ -124,6 +124,9 @@ namespace WpfApp2
 		[DllImport("user32.dll", SetLastError = true)]
 		public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
+		[DllImport("Kernel32.dll")]
+		public static extern bool QueryFullProcessImageName([In] IntPtr hProcess, [In] uint dwFlags, [Out] StringBuilder lpExeName, [In, Out] ref uint lpdwSize);
+
 		public static string GetWindowText(IntPtr hWnd)
 		{
 			var len = GetWindowTextLength(hWnd);

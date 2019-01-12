@@ -6,20 +6,28 @@
 		xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
 		xmlns:local="clr-namespace:WpfApp2"
 		mc:Ignorable="d"
-		Title="MainWindow" Height="350" MinHeight="350" Width="600" MinWidth="600" WindowStartupLocation="CenterScreen">
+		Title="MainWindow" Height="400" MinHeight="300" Width="700" MinWidth="500" WindowStartupLocation="CenterScreen">
 	<Window.Resources>
 		<Style x:Key="TrimmedText" TargetType="{x:Type TextBlock}">
 			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
 		</Style>
 		<Style x:Key="outputGrid" TargetType="{x:Type DataGrid}" BasedOn="{StaticResource {x:Type DataGrid}}">
-			<Setter Property="Grid.ColumnSpan" Value="2" />
+			<Setter Property="Grid.ColumnSpan" Value="1" />
 			<Style.Triggers>
 				<Trigger Property="SelectedIndex" Value="-1">
-					<Setter Property="Grid.ColumnSpan" Value="3" />
+					<Setter Property="Grid.ColumnSpan" Value="2" />
 				</Trigger>
 			</Style.Triggers>
 		</Style>
-		<Style x:Key="selectedGrid" TargetType="{x:Type Grid}">
+		<Style x:Key="searchBox" TargetType="{x:Type Grid}">
+			<Setter Property="Grid.ColumnSpan" Value="1" />
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}" Value="-1">
+					<Setter Property="Grid.ColumnSpan" Value="2" />
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+		<Style x:Key="selectedPanel" TargetType="{x:Type StackPanel}">
 			<Setter Property="Visibility" Value="Visible" />
 			<Style.Triggers>
 				<DataTrigger Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}" Value="-1">
@@ -28,42 +36,35 @@
 			</Style.Triggers>
 		</Style>
 	</Window.Resources>
-	<Grid>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto"/>
-			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="260"/>
-		</Grid.ColumnDefinitions>
-
+	<Grid Margin="16">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="50" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
 
-		<Button Name="actionButton" Margin="4" Content="_Refresh" Click="Button_Click" ToolTip="Refresh program list">
-			<Button.ContentTemplate>
-				<DataTemplate>
-					<StackPanel Orientation="Horizontal" Margin="16,0">
-						<emoji:TextBlock Text="♻️" FontSize="18" VerticalAlignment="Center" />
-					</StackPanel>
-				</DataTemplate>
-			</Button.ContentTemplate>
-		</Button>
-
-		<TextBox Name="processNameInput" 
-				 Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4,4,4" Padding="4" 
-				 VerticalContentAlignment="Center" 
-				 ToolTip="Search program list"
-				 TextWrapping="Wrap" 
-				 FontSize="18"
-				 Text="" 
-				 TextChanged="ProcessNameInput_TextChanged" />
+		<StackPanel 
+			Grid.ColumnSpan="2" 
+			Orientation="Vertical">
+			<emoji:TextBlock 
+				FontSize="20" 
+				TextTrimming="CharacterEllipsis" 
+				Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Title}" />
+			<TextBlock 
+				FontSize="12" 
+				LineHeight="24"
+				Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Process}" />
+		</StackPanel>
 
 		<DataGrid Name="outputGrid" 
 				  Style="{DynamicResource outputGrid}"
 				  Grid.Row="1"
-				  Margin="4,0,4,4" 
+				  Margin="0,8"
 				  IsReadOnly="True" 
 				  AutoGenerateColumns="False" 
 				  SelectionMode="Single"
@@ -71,7 +72,7 @@
 				  HorizontalGridLinesBrush="{x:Null}" 
 				  VerticalGridLinesBrush="{x:Null}" 
 				  Background="{x:Null}" 
-				  BorderBrush="#FFC8C8C8">
+				  BorderBrush="#FFABADB3">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Name" Binding="{Binding Name}" ElementStyle="{StaticResource TrimmedText}" Width="*" />
 				<DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="100" />
@@ -79,44 +80,63 @@
 			</DataGrid.Columns>
 		</DataGrid>
 
-		<Grid Name="selectedGrid" 
-			  Style="{DynamicResource selectedGrid}"
-			  Grid.Column="2" 
-			  Grid.Row="1" 
-			  Margin="4,0,4,4">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="35" />
-				<RowDefinition Height="*" />
-			</Grid.RowDefinitions>
+		<Grid Grid.Row="2" Style="{DynamicResource searchBox}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="60"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
 
-			<emoji:TextBlock 
-				FontSize="20" 
-				TextTrimming="CharacterEllipsis" 
-				Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Title}" />
+			<Button Name="actionButton" 
+					Padding="0,8"
+					Content="_Refresh" 
+					Click="Button_Click" 
+					ToolTip="Refresh program list">
+				<Button.ContentTemplate>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal" Margin="16,0">
+							<emoji:TextBlock Text="♻️" FontSize="18" VerticalAlignment="Center" />
+						</StackPanel>
+					</DataTemplate>
+				</Button.ContentTemplate>
+			</Button>
 
-			<StackPanel Orientation="Vertical" Grid.Row="1">
-				<TextBlock>Dimensions</TextBlock>
-				<Grid Width="150" Height="100" VerticalAlignment="Top">
-					<Grid.RowDefinitions>
-						<RowDefinition Height="1*" />
-						<RowDefinition Height="4*" />
-						<RowDefinition Height="1*" />
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="1*" />
-						<ColumnDefinition Width="3*" />
-						<ColumnDefinition Width="1*"/>
-					</Grid.ColumnDefinitions>
-
-					<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Top}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Column="1" ></TextBlock>
-					<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Left}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
-					<Border Grid.Row="1" Grid.Column="1" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1" Margin="4" />
-					<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Height}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
-					<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Width}" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" />
-				</Grid>
-			</StackPanel>
-
+			<TextBox Name="processNameInput"
+					 Grid.Column="2"
+					 Margin="8,0,0,0"
+					 VerticalContentAlignment="Center" 
+					 ToolTip="Search program list"
+					 TextWrapping="Wrap" 
+					 FontSize="18"
+					 Text="" 
+					 TextChanged="ProcessNameInput_TextChanged" />
 		</Grid>
+
+		<StackPanel 
+			Grid.Row="1"
+			Grid.Column="1"
+			Orientation="Vertical" 
+			VerticalAlignment="Center"
+			Style="{DynamicResource selectedPanel}">
+
+			<Grid Width="150" Height="100" VerticalAlignment="Top">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="1*" />
+					<RowDefinition Height="4*" />
+					<RowDefinition Height="1*" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="3*" />
+					<ColumnDefinition Width="1*"/>
+				</Grid.ColumnDefinitions>
+
+				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Top}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Column="1" ></TextBlock>
+				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Left}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
+				<Border Grid.Row="1" Grid.Column="1" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1" Margin="4" />
+				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Height}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
+				<TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=WindowInfoModel.Width}" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" />
+			</Grid>
+		</StackPanel>
 
 	</Grid>
 </Window>
