@@ -30,6 +30,7 @@ namespace WpfApp2
 	public partial class MainWindow : Window
 	{
 		// Underlying data
+		private string searchText = string.Empty;
 		private WindowInformation selectedWindow;
 		private bool selectedWindowHasFocus;
 
@@ -107,8 +108,8 @@ namespace WpfApp2
 		private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
 		{
 			var item = e.Item as WindowInformation;
-			var titleMatches = item.Name.ToLower().Contains(processNameInput.Text);
-			var procNameMatches = item.ProcessName.ToLower().Contains(processNameInput.Text);
+			var titleMatches = item.Name.ToLower().Contains(searchText);
+			var procNameMatches = item.ProcessName.ToLower().Contains(searchText);
 			e.Accepted = titleMatches || procNameMatches;
 		}
 
@@ -184,6 +185,8 @@ namespace WpfApp2
 
 		private void ProcessNameInput_TextChanged(object sender, TextChangedEventArgs e)
 		{
+			var box = e.Source as TextBox;
+			searchText = box.Text;
 			windowListViewSource.View.Refresh();
 		}
 	}
