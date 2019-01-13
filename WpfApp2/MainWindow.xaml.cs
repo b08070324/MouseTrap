@@ -86,7 +86,7 @@ namespace WpfApp2
 			selectedWindowHasFocus = (selectedWindow.Handle == foregroundWindow);
 
 			// Throttle polling
-			Thread.Sleep(250);
+			Thread.Sleep(150);
 		}
 
 		// This runs in UI thread

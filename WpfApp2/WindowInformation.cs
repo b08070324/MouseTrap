@@ -26,23 +26,21 @@ namespace WpfApp2
 
 		public WindowInformation(IntPtr hWnd)
 		{
-			PopulateData(hWnd);
+			PopulateMainData(hWnd);
+			UpdateVariableData();
 		}
 
 		public void Update()
 		{
-			PopulateData(Handle);
+			UpdateVariableData();
 		}
 
-		private void PopulateData(IntPtr hWnd)
+		private void PopulateMainData(IntPtr hWnd)
 		{
 			if (hWnd == null || hWnd == IntPtr.Zero) return;
 
 			// Window handle
 			this.Handle = hWnd;
-
-			// Title bar name
-			this.Name = Win32Interop.GetWindowText(hWnd);
 
 			// Thread process ID
 			Win32Interop.GetWindowThreadProcessId(hWnd, out uint procId);
@@ -63,16 +61,22 @@ namespace WpfApp2
 
 			// Close handle
 			Win32Interop.CloseHandle(limitedHandle);
+		}
+
+		private void UpdateVariableData()
+		{
+			// Title bar name
+			this.Name = Win32Interop.GetWindowText(Handle);
 
 			// Window dimensions
-			Win32Interop.GetWindowRect(hWnd, out Win32Interop.Rect rect);
+			Win32Interop.GetWindowRect(Handle, out Win32Interop.Rect rect);
 			this.Bottom = rect.Bottom;
 			this.Left = rect.Left;
 			this.Right = rect.Right;
 			this.Top = rect.Top;
 
 			// Extended window styles
-			this.ExStyle = Win32Interop.GetWindowLongPtr(hWnd, (int)Win32Interop.GWL.GWL_EXSTYLE);
+			this.ExStyle = Win32Interop.GetWindowLongPtr(Handle, (int)Win32Interop.GWL.GWL_EXSTYLE);
 		}
 	}
 }
