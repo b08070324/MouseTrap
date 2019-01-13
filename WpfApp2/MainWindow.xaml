@@ -56,9 +56,8 @@
 			</Style.Triggers>
 		</Style>
 	</Window.Resources>
-	<Grid Margin="16,12,16,16">
+	<Grid Margin="16">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
@@ -67,36 +66,10 @@
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
 
-		<StackPanel 
-			Grid.ColumnSpan="2" 
-			Orientation="Vertical">
-			<emoji:TextBlock 
-				FontSize="20" 
-				TextTrimming="CharacterEllipsis">
-				<TextBlock.Text>
-					<Binding 
-						RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-						Path="SelectedWindowViewModel.Title" 
-						FallbackValue="Window title" />
-				</TextBlock.Text>
-			</emoji:TextBlock>
-			<TextBlock 
-				FontSize="12" 
-				LineHeight="24"
-				TextTrimming="CharacterEllipsis">
-				<TextBlock.Text>
-					<Binding 
-						RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-						Path="SelectedWindowViewModel.Process" 
-						FallbackValue="Process name" />
-				</TextBlock.Text>
-			</TextBlock>
-		</StackPanel>
-
 		<DataGrid Name="outputGrid" 
 				  Style="{DynamicResource outputGrid}"
-				  Grid.Row="1"
-				  Margin="0,8"
+				  Grid.Row="0"
+				  Margin="0,0,0,8"
 				  IsReadOnly="True" 
 				  AutoGenerateColumns="False" 
 				  SelectionMode="Single"
@@ -111,20 +84,20 @@
 			</DataGrid.Columns>
 		</DataGrid>
 
-		<Grid Grid.Row="2" Style="{DynamicResource searchBox}">
+		<Grid Grid.Row="1" Style="{DynamicResource searchBox}">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="60"/>
+				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 
 			<Button Name="actionButton" 
-					Padding="0,8"
+					Padding="0"
 					Content="_Refresh" 
 					Click="RefreshWindowList_Click" 
 					ToolTip="Refresh program list">
 				<Button.ContentTemplate>
 					<DataTemplate>
-						<StackPanel Orientation="Horizontal" Margin="16,0">
+						<StackPanel Orientation="Horizontal" Margin="4">
 							<emoji:TextBlock Text="♻️" FontSize="18" VerticalAlignment="Center" />
 						</StackPanel>
 					</DataTemplate>
@@ -142,17 +115,41 @@
 					 TextChanged="ProcessNameInput_TextChanged" />
 		</Grid>
 
-		<Grid
-			Grid.Row="1" 
-			Grid.Column="1"
-			Style="{DynamicResource selectedPanel}">
+		<Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+			Margin="8,0,0,0" Style="{DynamicResource selectedPanel}">
+
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			
-			<Grid Grid.Row="0" Width="150" Height="100" VerticalAlignment="Top">
+
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+
+			<StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Vertical" Margin="0,0,0,16">
+				<emoji:TextBlock FontSize="20" MaxHeight="60" TextWrapping="Wrap" TextTrimming="CharacterEllipsis">
+					<TextBlock.Text>
+						<Binding 
+							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
+							Path="SelectedWindowViewModel.Title" 
+							FallbackValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin viverra posuere tempor. Praesent sagittis eros purus, ac congue quam sollicitudin quis." />
+					</TextBlock.Text>
+				</emoji:TextBlock>
+				<TextBlock FontSize="12" TextWrapping="Wrap" TextTrimming="CharacterEllipsis">
+					<TextBlock.Text>
+						<Binding 
+							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
+							Path="SelectedWindowViewModel.Process" 
+							FallbackValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin viverra posuere tempor." />
+					</TextBlock.Text>
+				</TextBlock>
+			</StackPanel>
+
+			<Grid Grid.Row="1" Width="150" Height="100" VerticalAlignment="Top">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="1*" />
 					<RowDefinition Height="4*" />
@@ -220,7 +217,7 @@
 				</TextBlock>
 			</Grid>
 
-			<TextBlock Grid.Row="1" HorizontalAlignment="Center">
+			<TextBlock Grid.Row="2" HorizontalAlignment="Center">
 				<TextBlock.Resources>
 					<localdata:BoolToStringConverter x:Key="BooleanToStringConverter" FalseValue="No focus" TrueValue="Has focus" />
 				</TextBlock.Resources>
@@ -233,12 +230,7 @@
 				</TextBlock.Text>
 			</TextBlock>
 
-			<Button 
-				Grid.Row="2" 
-				Width="48" 
-				Height="48" 
-				Margin="8,32,8,8" 
-				ToolTip="Lock mouse to window">
+			<Button Grid.Row="1" Grid.Column="1" Width="48" Height="48" ToolTip="Lock mouse to window">
 				<emoji:TextBlock Text="🔒" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center" />
 			</Button>
 		</Grid>
