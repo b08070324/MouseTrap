@@ -33,11 +33,12 @@ namespace WpfApp2
 		private string searchText = string.Empty;
 		private WindowInformation selectedWindow;
 		private bool selectedWindowHasFocus;
+		private IntPtr appHandle;
 
 		// View data binding
 		private List<WindowInformation> tempWindowList;
 		private BatchedObservableCollection<WindowInformation> observedWindowList;
-		private CollectionViewSource windowListViewSource;
+		public CollectionViewSource WindowListViewSource { get; set; }
 		public SelectedWindowModel SelectedWindowViewModel { get; set; }
 
 		// Threading
@@ -53,11 +54,9 @@ namespace WpfApp2
 			// View model binding
 			tempWindowList = new List<WindowInformation>();
 			observedWindowList = new BatchedObservableCollection<WindowInformation>();
-			windowListViewSource = new CollectionViewSource();
-			windowListViewSource.Source = observedWindowList;
-			windowListViewSource.Filter += CollectionViewSource_Filter;
-			outputGrid.ItemsSource = windowListViewSource.View;
-			outputGrid.SelectedCellsChanged += OutputGrid_SelectedCellsChanged;
+			WindowListViewSource = new CollectionViewSource();
+			WindowListViewSource.Source = observedWindowList;
+			WindowListViewSource.Filter += CollectionViewSource_Filter;
 			SelectedWindowViewModel = new SelectedWindowModel();
 
 			// Update thread
@@ -65,7 +64,16 @@ namespace WpfApp2
 			worker.DoWork += worker_DoWork;
 			worker.RunWorkerCompleted += worker_RunWorkerCompleted;
 
-			// Initialise view
+			// Continue when app is loaded
+			this.Loaded += MainWindow_Loaded;
+		}
+
+		private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+		{
+			// Store a handle to main app window so it can be ignored in list
+			appHandle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+
+			// Update window grid
 			RefreshDataGrid();
 		}
 
@@ -73,6 +81,8 @@ namespace WpfApp2
 
 		private void RefreshDataGrid()
 		{
+			System.Diagnostics.Debug.WriteLine("Refresh");
+
 			// Reset temp list
 			tempWindowList.Clear();
 
@@ -89,6 +99,9 @@ namespace WpfApp2
 
 		private bool EnumWindowsCallback(IntPtr hWnd, int lParam)
 		{
+			// Ignore self
+			if (hWnd == appHandle) return true;
+
 			// Check visibility
 			if (!Win32Interop.IsWindowVisible(hWnd) || Win32Interop.IsIconic(hWnd)) return true;
 
@@ -187,7 +200,7 @@ namespace WpfApp2
 		{
 			var box = e.Source as TextBox;
 			searchText = box.Text;
-			windowListViewSource.View.Refresh();
+			WindowListViewSource.View.Refresh();
 		}
 	}
 }

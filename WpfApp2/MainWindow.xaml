@@ -63,11 +63,11 @@
 			</Grid.ColumnDefinitions>
 
 			<DataGrid Grid.ColumnSpan="2" Name="outputGrid" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" HeadersVisibility="Column"
-					  Margin="0,0,0,8"
-					  HorizontalGridLinesBrush="{x:Null}" 
-					  VerticalGridLinesBrush="{x:Null}" 
-					  Background="{x:Null}" 
-					  BorderBrush="#FFABADB3">
+					  Margin="0,0,0,8" HorizontalGridLinesBrush="{x:Null}" VerticalGridLinesBrush="{x:Null}" Background="{x:Null}" BorderBrush="#FFABADB3"
+					  SelectedCellsChanged="OutputGrid_SelectedCellsChanged">
+				<DataGrid.ItemsSource>
+					<Binding Path="WindowListViewSource.View" RelativeSource="{RelativeSource AncestorType={x:Type Window}}" />
+				</DataGrid.ItemsSource>
 				<DataGrid.Columns>
 					<DataGridTextColumn Header="Name" Binding="{Binding Name}" ElementStyle="{StaticResource TrimmedText}" Width="*" />
 					<DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="50" />
@@ -84,7 +84,7 @@
 				</Button.ContentTemplate>
 			</Button>
 
-			<TextBox Name="processNameInput" Grid.Row="1" Grid.Column="2" Margin="8,0,0,0" FontSize="18" VerticalContentAlignment="Center" ToolTip="Search program list" TextChanged="ProcessNameInput_TextChanged" />
+			<TextBox Grid.Row="1" Grid.Column="2" Margin="8,0,0,0" FontSize="18" VerticalContentAlignment="Center" ToolTip="Search program list" TextChanged="ProcessNameInput_TextChanged" />
 		</Grid>
 
 		<!-- Right side -->
