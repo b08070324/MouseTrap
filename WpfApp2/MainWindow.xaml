@@ -5,6 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
 		xmlns:local="clr-namespace:WpfApp2"
+		xmlns:localdata="clr-namespace:WpfApp2.Data"
 		xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=PresentationFramework"
 		mc:Ignorable="d"
 		Title="MainWindow" Height="400" MinHeight="300" Width="700" MinWidth="500" WindowStartupLocation="CenterScreen">
@@ -221,7 +222,7 @@
 
 			<TextBlock Grid.Row="1" HorizontalAlignment="Center">
 				<TextBlock.Resources>
-					<local:BoolToStringConverter x:Key="BooleanToStringConverter" FalseValue="No focus" TrueValue="Has focus" />
+					<localdata:BoolToStringConverter x:Key="BooleanToStringConverter" FalseValue="No focus" TrueValue="Has focus" />
 				</TextBlock.Resources>
 				<TextBlock.Text>
 					<Binding 

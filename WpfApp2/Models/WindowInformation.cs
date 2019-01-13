@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfApp2
+using WpfApp2.Interop;
+
+namespace WpfApp2.Models
 {
     public class WindowInformation
 	{
@@ -51,7 +53,7 @@ namespace WpfApp2
 			this.ProcessName = process.ProcessName;
 
 			// Get limited info handle
-			IntPtr limitedHandle = Win32Interop.OpenProcess(Win32Interop.ProcessAccessFlags.QueryLimitedInformation, false, (int)procId);
+			IntPtr limitedHandle = Win32Interop.OpenProcess(ProcessAccessFlags.QueryLimitedInformation, false, (int)procId);
 
 			// Full path to executable
 			var sb = new StringBuilder(1024);
@@ -69,14 +71,14 @@ namespace WpfApp2
 			this.Name = Win32Interop.GetWindowText(Handle);
 
 			// Window dimensions
-			Win32Interop.GetWindowRect(Handle, out Win32Interop.Rect rect);
+			Win32Interop.GetWindowRect(Handle, out Rect rect);
 			this.Bottom = rect.Bottom;
 			this.Left = rect.Left;
 			this.Right = rect.Right;
 			this.Top = rect.Top;
 
 			// Extended window styles
-			this.ExStyle = Win32Interop.GetWindowLongPtr(Handle, (int)Win32Interop.GWL.GWL_EXSTYLE);
+			this.ExStyle = Win32Interop.GetWindowLongPtr(Handle, (int)GWL.GWL_EXSTYLE);
 		}
 	}
 }

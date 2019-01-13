@@ -18,6 +18,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
+using WpfApp2.Interop;
+using WpfApp2.Models;
+using WpfApp2.Data;
+
 namespace WpfApp2
 {
 	/// <summary>
@@ -33,7 +37,7 @@ namespace WpfApp2
 		private List<WindowInformation> tempWindowList;
 		private BatchedObservableCollection<WindowInformation> observedWindowList;
 		private CollectionViewSource windowListViewSource;
-		public WindowInfoModel SelectedWindowViewModel { get; set; }
+		public SelectedWindowModel SelectedWindowViewModel { get; set; }
 
 		// Threading
 		private SynchronizationContext uiContext = SynchronizationContext.Current;
@@ -53,7 +57,7 @@ namespace WpfApp2
 			windowListViewSource.Filter += CollectionViewSource_Filter;
 			outputGrid.ItemsSource = windowListViewSource.View;
 			outputGrid.SelectedCellsChanged += OutputGrid_SelectedCellsChanged;
-			SelectedWindowViewModel = new WindowInfoModel();
+			SelectedWindowViewModel = new SelectedWindowModel();
 
 			// Update thread
 			worker = new BackgroundWorker();
@@ -72,7 +76,7 @@ namespace WpfApp2
 			tempWindowList.Clear();
 
 			// Populate temp list
-			Win32Interop.EnumWindows(new Win32Interop.WindowEnumCallback(EnumWindowsCallback), 0);
+			Win32Interop.EnumWindows(new WindowEnumCallback(EnumWindowsCallback), 0);
 
 			// Update datagrid
 			uiContext.Send(x =>
@@ -91,8 +95,8 @@ namespace WpfApp2
 			var info = new WindowInformation(hWnd);
 
 			// Ignore tool windows
-			if (Win32Interop.HasExStyle(info.ExStyle, Win32Interop.WindowStylesEx.WS_EX_TOOLWINDOW)) return true;
-			if (Win32Interop.HasExStyle(info.ExStyle, Win32Interop.WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP)) return true;
+			if (Win32Interop.HasExStyle(info.ExStyle, WindowStylesEx.WS_EX_TOOLWINDOW)) return true;
+			if (Win32Interop.HasExStyle(info.ExStyle, WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP)) return true;
 
 			// Add to list
 			tempWindowList.Add(info);

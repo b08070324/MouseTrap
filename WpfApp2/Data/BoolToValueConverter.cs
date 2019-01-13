@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace WpfApp2
+namespace WpfApp2.Data
 {
 	public class BoolToValueConverter<T> : IValueConverter
 	{

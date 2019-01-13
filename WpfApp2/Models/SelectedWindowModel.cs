@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace WpfApp2
+namespace WpfApp2.Models
 {
-	public class WindowInfoModel : INotifyPropertyChanged
+	public class SelectedWindowModel : INotifyPropertyChanged
 	{
 		private string title = "Select a program";
 		private string process = "";
