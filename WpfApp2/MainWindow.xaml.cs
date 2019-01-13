@@ -25,10 +25,9 @@ namespace WpfApp2
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		// Threading
-		private SynchronizationContext uiContext = SynchronizationContext.Current;
-		private readonly BackgroundWorker worker;
-		public bool isPolling;
+		// Underlying data
+		private WindowInformation selectedWindow;
+		private bool selectedWindowHasFocus;
 
 		// View data binding
 		private List<WindowInformation> tempWindowList;
@@ -36,15 +35,17 @@ namespace WpfApp2
 		private CollectionViewSource windowListViewSource;
 		public WindowInfoModel SelectedWindowViewModel { get; set; }
 
-		// Underlying data
-		private WindowInformation selectedWindow;
-		private bool selectedWindowHasFocus;
+		// Threading
+		private SynchronizationContext uiContext = SynchronizationContext.Current;
+		private readonly BackgroundWorker worker;
+		public bool isPolling;
 
+		// Constructor
 		public MainWindow()
 		{
 			InitializeComponent();
 
-			// Bind collection to datagrid
+			// View model binding
 			tempWindowList = new List<WindowInformation>();
 			observedWindowList = new BatchedObservableCollection<WindowInformation>();
 			windowListViewSource = new CollectionViewSource();
@@ -52,15 +53,62 @@ namespace WpfApp2
 			windowListViewSource.Filter += CollectionViewSource_Filter;
 			outputGrid.ItemsSource = windowListViewSource.View;
 			outputGrid.SelectedCellsChanged += OutputGrid_SelectedCellsChanged;
-
 			SelectedWindowViewModel = new WindowInfoModel();
 
+			// Update thread
 			worker = new BackgroundWorker();
 			worker.DoWork += worker_DoWork;
 			worker.RunWorkerCompleted += worker_RunWorkerCompleted;
 
+			// Initialise view
 			RefreshDataGrid();
 		}
+
+		// View updates
+
+		private void RefreshDataGrid()
+		{
+			// Reset temp list
+			tempWindowList.Clear();
+
+			// Populate temp list
+			Win32Interop.EnumWindows(new Win32Interop.WindowEnumCallback(EnumWindowsCallback), 0);
+
+			// Update datagrid
+			uiContext.Send(x =>
+			{
+				observedWindowList.SetItems(tempWindowList);
+			}
+			, null);
+		}
+
+		private bool EnumWindowsCallback(IntPtr hWnd, int lParam)
+		{
+			// Check visibility
+			if (!Win32Interop.IsWindowVisible(hWnd) || Win32Interop.IsIconic(hWnd)) return true;
+
+			// Get info
+			var info = new WindowInformation(hWnd);
+
+			// Ignore tool windows
+			if (Win32Interop.HasExStyle(info.ExStyle, Win32Interop.WindowStylesEx.WS_EX_TOOLWINDOW)) return true;
+			if (Win32Interop.HasExStyle(info.ExStyle, Win32Interop.WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP)) return true;
+
+			// Add to list
+			tempWindowList.Add(info);
+
+			return true;
+		}
+
+		private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
+		{
+			var item = e.Item as WindowInformation;
+			var titleMatches = item.Name.ToLower().Contains(processNameInput.Text);
+			var procNameMatches = item.ProcessName.ToLower().Contains(processNameInput.Text);
+			e.Accepted = titleMatches || procNameMatches;
+		}
+
+		// Threading
 
 		private void worker_startPolling()
 		{
@@ -112,6 +160,13 @@ namespace WpfApp2
 			}
 		}
 
+		// Input event handlers
+
+		private void RefreshWindowList_Click(object sender, RoutedEventArgs e)
+		{
+			RefreshDataGrid();
+		}
+
 		private void OutputGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
 		{
 			// Get selected window
@@ -126,57 +181,6 @@ namespace WpfApp2
 		private void ProcessNameInput_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			windowListViewSource.View.Refresh();
-		}
-
-		private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
-		{
-			var item = e.Item as WindowInformation;
-			var titleMatches = item.Name.ToLower().Contains(processNameInput.Text);
-			var procNameMatches = item.ProcessName.ToLower().Contains(processNameInput.Text);
-			e.Accepted = titleMatches || procNameMatches;
-		}
-
-		private void Button_Click(object sender, RoutedEventArgs e)
-		{
-			RefreshDataGrid();
-		}
-
-		private void RefreshDataGrid()
-		{
-			// Reset temp list
-			tempWindowList.Clear();
-
-			// Populate temp list
-			Win32Interop.EnumWindows(new Win32Interop.WindowEnumCallback(EnumWindowsCallback), 0);
-
-			// Update datagrid
-			uiContext.Send(x =>
-			{
-				observedWindowList.SetItems(tempWindowList);
-			}
-			, null);
-		}
-
-		private bool EnumWindowsCallback(IntPtr hWnd, int lParam)
-		{
-			// Check visibility
-			if (!Win32Interop.IsWindowVisible(hWnd) || Win32Interop.IsIconic(hWnd)) return true;
-
-			// Get info
-			var info = new WindowInformation(hWnd);
-
-			// Ignore tool windows
-			if (Win32Interop.HasExStyle(info.ExStyle, Win32Interop.WindowStylesEx.WS_EX_TOOLWINDOW)) return true;
-			if (Win32Interop.HasExStyle(info.ExStyle, Win32Interop.WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP)) return true;
-
-			// Add to list
-			tempWindowList.Add(info);
-
-			return true;
-		}
-
-		private void Button_Click_1(object sender, RoutedEventArgs e)
-		{
 		}
 	}
 }

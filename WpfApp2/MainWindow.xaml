@@ -119,7 +119,7 @@
 			<Button Name="actionButton" 
 					Padding="0,8"
 					Content="_Refresh" 
-					Click="Button_Click" 
+					Click="RefreshWindowList_Click" 
 					ToolTip="Refresh program list">
 				<Button.ContentTemplate>
 					<DataTemplate>
@@ -232,7 +232,12 @@
 				</TextBlock.Text>
 			</TextBlock>
 
-			<Button Width="48" Height="48" Grid.Row="2" Margin="8,32,8,8" ToolTip="Lock mouse to window" Click="Button_Click_1">
+			<Button 
+				Grid.Row="2" 
+				Width="48" 
+				Height="48" 
+				Margin="8,32,8,8" 
+				ToolTip="Lock mouse to window">
 				<emoji:TextBlock Text="🔒" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center" />
 			</Button>
 		</Grid>
