@@ -25,43 +25,48 @@ namespace WpfApp2
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		// Threading
 		private SynchronizationContext uiContext = SynchronizationContext.Current;
+		private readonly BackgroundWorker worker;
+		public bool isPolling;
 
-		private List<WindowInformation> TempWindowInfo { get; set; }
-		private BatchedObservableCollection<WindowInformation> WindowInfo { get; set; }
-		private CollectionViewSource CollectionViewSource { get; set; }
+		// View data binding
+		private List<WindowInformation> tempWindowList;
+		private BatchedObservableCollection<WindowInformation> observedWindowList;
+		private CollectionViewSource windowListViewSource;
+		public WindowInfoModel SelectedWindowViewModel { get; set; }
 
-		public WindowInfoModel WindowInfoModel { get; set; }
-
-		private readonly BackgroundWorker worker = new BackgroundWorker();
-		public bool IsPolling { get; set; }
+		// Underlying data
+		private WindowInformation selectedWindow;
+		private bool selectedWindowHasFocus;
 
 		public MainWindow()
 		{
 			InitializeComponent();
 
 			// Bind collection to datagrid
-			TempWindowInfo = new List<WindowInformation>();
-			WindowInfo = new BatchedObservableCollection<WindowInformation>();
-			CollectionViewSource = new CollectionViewSource();
-			CollectionViewSource.Source = WindowInfo;
-			CollectionViewSource.Filter += CollectionViewSource_Filter;
-			outputGrid.ItemsSource = CollectionViewSource.View;
+			tempWindowList = new List<WindowInformation>();
+			observedWindowList = new BatchedObservableCollection<WindowInformation>();
+			windowListViewSource = new CollectionViewSource();
+			windowListViewSource.Source = observedWindowList;
+			windowListViewSource.Filter += CollectionViewSource_Filter;
+			outputGrid.ItemsSource = windowListViewSource.View;
 			outputGrid.SelectedCellsChanged += OutputGrid_SelectedCellsChanged;
 
-			WindowInfoModel = new WindowInfoModel();
+			SelectedWindowViewModel = new WindowInfoModel();
 
-			UpdateWindowInformation();
-
+			worker = new BackgroundWorker();
 			worker.DoWork += worker_DoWork;
 			worker.RunWorkerCompleted += worker_RunWorkerCompleted;
+
+			RefreshDataGrid();
 		}
 
 		private void worker_startPolling()
 		{
-			if (!IsPolling)
+			if (!isPolling)
 			{
-				IsPolling = true;
+				isPolling = true;
 				worker.RunWorkerAsync();
 				System.Diagnostics.Debug.WriteLine("Start polling");
 			}
@@ -69,26 +74,36 @@ namespace WpfApp2
 
 		private void worker_stopPolling()
 		{
-			IsPolling = false;
+			isPolling = false;
 		}
 
 		// This run in worker thread
 		private void worker_DoWork(object sender, DoWorkEventArgs e)
 		{
-			Win32Interop.GetWindowRect(WindowInfoModel.Handle, out Win32Interop.Rect rect);
-			WindowInfoModel.SetDimensions(rect.Top, rect.Left, rect.Right, rect.Bottom);
-
+			// Update underlying data
+			selectedWindow.Update();
 			var foregroundWindow = Win32Interop.GetForegroundWindow();
-			WindowInfoModel.HasFocus = (WindowInfoModel.Handle == foregroundWindow);
+			selectedWindowHasFocus = (selectedWindow.Handle == foregroundWindow);
 
-			Thread.Sleep(50);
+			// Throttle polling
+			Thread.Sleep(250);
 		}
 
 		// This runs in UI thread
 		private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
-			if (IsPolling)
+			if (isPolling)
 			{
+				// Update view model
+				SelectedWindowViewModel.Title = selectedWindow.Name;
+				SelectedWindowViewModel.Process = selectedWindow.FullProcessName;
+				SelectedWindowViewModel.Top = selectedWindow.Top;
+				SelectedWindowViewModel.Left = selectedWindow.Left;
+				SelectedWindowViewModel.Width = (selectedWindow.Right - selectedWindow.Left);
+				SelectedWindowViewModel.Height = (selectedWindow.Bottom - selectedWindow.Top);
+				SelectedWindowViewModel.HasFocus = selectedWindowHasFocus;
+
+				// Execute another poll
 				worker.RunWorkerAsync();
 			}
 			else
@@ -99,34 +114,18 @@ namespace WpfApp2
 
 		private void OutputGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
 		{
-			// Return if no cells selected
-			if (e.AddedCells.Count < 1)
-			{
-				worker_stopPolling();
-				return;
-			}
+			// Get selected window
+			if (e.AddedCells.Count > 0) selectedWindow = e.AddedCells.First().Item as WindowInformation;
+			else selectedWindow = null;
 
-			// Get selected item
-			var item = e.AddedCells.First().Item as WindowInformation;
-			if (item == null)
-			{
-				worker_stopPolling();
-				return;
-			}
-
-			// Update view model
-			WindowInfoModel.Handle = item.Handle;
-			WindowInfoModel.Title = item.Name;
-			WindowInfoModel.Process = item.FullProcessName;
-			WindowInfoModel.SetDimensions(item.Top, item.Left, item.Right, item.Bottom);
-
-			// Start polling
-			worker_startPolling();
+			// Start (or continue) polling if window was selected
+			if (selectedWindow != null) worker_startPolling();
+			else worker_stopPolling();
 		}
 
 		private void ProcessNameInput_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			CollectionViewSource.View.Refresh();
+			windowListViewSource.View.Refresh();
 		}
 
 		private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
@@ -139,19 +138,21 @@ namespace WpfApp2
 
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
-			UpdateWindowInformation();
+			RefreshDataGrid();
 		}
 
-		private void UpdateWindowInformation()
+		private void RefreshDataGrid()
 		{
-			// Get data
-			TempWindowInfo.Clear();
+			// Reset temp list
+			tempWindowList.Clear();
+
+			// Populate temp list
 			Win32Interop.EnumWindows(new Win32Interop.WindowEnumCallback(EnumWindowsCallback), 0);
 
 			// Update datagrid
 			uiContext.Send(x =>
 			{
-				WindowInfo.SetItems(TempWindowInfo);
+				observedWindowList.SetItems(tempWindowList);
 			}
 			, null);
 		}
@@ -162,53 +163,16 @@ namespace WpfApp2
 			if (!Win32Interop.IsWindowVisible(hWnd) || Win32Interop.IsIconic(hWnd)) return true;
 
 			// Get info
-			var info = GetWindowInformation(hWnd);
+			var info = new WindowInformation(hWnd);
 
 			// Ignore tool windows
 			if (Win32Interop.HasExStyle(info.ExStyle, Win32Interop.WindowStylesEx.WS_EX_TOOLWINDOW)) return true;
 			if (Win32Interop.HasExStyle(info.ExStyle, Win32Interop.WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP)) return true;
 
 			// Add to list
-			TempWindowInfo.Add(info);
+			tempWindowList.Add(info);
 
 			return true;
-		}
-
-		private WindowInformation GetWindowInformation(IntPtr hWnd)
-		{
-			if (hWnd == null || hWnd == IntPtr.Zero) return null;
-
-			// Get window title
-			var title = Win32Interop.GetWindowText(hWnd);
-
-			// Get process info
-			Win32Interop.GetWindowThreadProcessId(hWnd, out uint procId);
-			var process = Process.GetProcessById((int)procId);
-			var sb = new StringBuilder(1024);
-			uint len = (uint)sb.Capacity + 1;
-			Win32Interop.QueryFullProcessImageName(process.Handle, 0, sb, ref len);
-
-
-			// Get window size and position
-			Win32Interop.GetWindowRect(hWnd, out Win32Interop.Rect rect);
-
-			// Get window ex styles
-			var exStyle = Win32Interop.GetWindowLongPtr(hWnd, (int)Win32Interop.GWL.GWL_EXSTYLE);
-
-			// Return object
-			return new WindowInformation
-			{
-				Handle = hWnd,
-				Name = title,
-				ProcessId = procId,
-				ProcessName = process.ProcessName,
-				FullProcessName = sb.ToString(),
-				Bottom = rect.Bottom,
-				Left = rect.Left,
-				Right = rect.Right,
-				Top = rect.Top,
-				ExStyle = exStyle
-			};
 		}
 
 		private void Button_Click_1(object sender, RoutedEventArgs e)

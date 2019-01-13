@@ -7,6 +7,7 @@ namespace WpfApp2
 	public static class Win32Interop
 	{
 		public delegate bool WindowEnumCallback(IntPtr hWnd, int lParam);
+		public delegate IntPtr HookProc(int code, IntPtr wParam, IntPtr lParam);
 
 		[StructLayout(LayoutKind.Sequential)]
 		public struct Rect
@@ -75,9 +76,41 @@ namespace WpfApp2
 			WS_EX_WINDOWEDGE = 0x00000100
 		}
 
-		public static bool HasExStyle(IntPtr exStyle, WindowStylesEx style)
+		[Flags]
+		public enum ProcessAccessFlags : uint
 		{
-			return (exStyle.ToInt32() & (int)style) != 0;
+			All = 0x001F0FFF,
+			Terminate = 0x00000001,
+			CreateThread = 0x00000002,
+			VirtualMemoryOperation = 0x00000008,
+			VirtualMemoryRead = 0x00000010,
+			VirtualMemoryWrite = 0x00000020,
+			DuplicateHandle = 0x00000040,
+			CreateProcess = 0x000000080,
+			SetQuota = 0x00000100,
+			SetInformation = 0x00000200,
+			QueryInformation = 0x00000400,
+			QueryLimitedInformation = 0x00001000,
+			Synchronize = 0x00100000
+		}
+
+		public enum HookType : int
+		{
+			WH_JOURNALRECORD = 0,
+			WH_JOURNALPLAYBACK = 1,
+			WH_KEYBOARD = 2,
+			WH_GETMESSAGE = 3,
+			WH_CALLWNDPROC = 4,
+			WH_CBT = 5,
+			WH_SYSMSGFILTER = 6,
+			WH_MOUSE = 7,
+			WH_HARDWARE = 8,
+			WH_DEBUG = 9,
+			WH_SHELL = 10,
+			WH_FOREGROUNDIDLE = 11,
+			WH_CALLWNDPROCRET = 12,
+			WH_KEYBOARD_LL = 13,
+			WH_MOUSE_LL = 14
 		}
 
 		[DllImport("user32.dll")]
@@ -124,8 +157,28 @@ namespace WpfApp2
 		[DllImport("user32.dll", SetLastError = true)]
 		public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
+		[DllImport("kernel32.dll")]
+		public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
+		[DllImport("kernel32.dll", SetLastError = true)]
+		public static extern bool CloseHandle(IntPtr hHandle);
+
 		[DllImport("Kernel32.dll")]
 		public static extern bool QueryFullProcessImageName([In] IntPtr hProcess, [In] uint dwFlags, [Out] StringBuilder lpExeName, [In, Out] ref uint lpdwSize);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		public static extern IntPtr SetWindowsHookEx(HookType hookType, HookProc lpfn, IntPtr hMod, uint dwThreadId);
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		public static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+		public static bool HasExStyle(IntPtr exStyle, WindowStylesEx style)
+		{
+			return (exStyle.ToInt32() & (int)style) != 0;
+		}
 
 		public static string GetWindowText(IntPtr hWnd)
 		{

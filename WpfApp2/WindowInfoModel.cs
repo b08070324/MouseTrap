@@ -6,7 +6,6 @@ namespace WpfApp2
 {
 	public class WindowInfoModel : INotifyPropertyChanged
 	{
-		private IntPtr handle = IntPtr.Zero;
 		private string title = "Select a program";
 		private string process = "";
 		private int top = 0;
@@ -21,12 +20,6 @@ namespace WpfApp2
 		{
 			field = value;
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
-
-		public IntPtr Handle
-		{
-			get { return handle; }
-			set { SetField(ref handle, value); }
 		}
 
 		public string Title
@@ -69,14 +62,6 @@ namespace WpfApp2
 		{
 			get { return hasFocus; }
 			set { SetField(ref hasFocus, value); }
-		}
-
-		public void SetDimensions(int top, int left, int right, int bottom)
-		{
-			Top = top;
-			Left = left;
-			Width = (right - left);
-			Height = (bottom - top);
 		}
 	}
 }

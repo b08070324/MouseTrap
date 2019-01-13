@@ -75,7 +75,7 @@
 				<TextBlock.Text>
 					<Binding 
 						RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-						Path="WindowInfoModel.Title" 
+						Path="SelectedWindowViewModel.Title" 
 						FallbackValue="Window title" />
 				</TextBlock.Text>
 			</emoji:TextBlock>
@@ -86,7 +86,7 @@
 				<TextBlock.Text>
 					<Binding 
 						RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-						Path="WindowInfoModel.Process" 
+						Path="SelectedWindowViewModel.Process" 
 						FallbackValue="Process name" />
 				</TextBlock.Text>
 			</TextBlock>
@@ -170,7 +170,7 @@
 					<TextBlock.Text>
 						<Binding 
 							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="WindowInfoModel.Top"
+							Path="SelectedWindowViewModel.Top"
 							FallbackValue="0" />
 					</TextBlock.Text>
 				</TextBlock>
@@ -182,7 +182,7 @@
 					<TextBlock.Text>
 						<Binding 
 							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="WindowInfoModel.Left"
+							Path="SelectedWindowViewModel.Left"
 							FallbackValue="0" />
 					</TextBlock.Text>
 				</TextBlock>
@@ -201,7 +201,7 @@
 					<TextBlock.Text>
 						<Binding 
 							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="WindowInfoModel.Height"
+							Path="SelectedWindowViewModel.Height"
 							FallbackValue="0" />
 					</TextBlock.Text>
 				</TextBlock>
@@ -213,7 +213,7 @@
 					<TextBlock.Text>
 						<Binding 
 							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="WindowInfoModel.Width"
+							Path="SelectedWindowViewModel.Width"
 							FallbackValue="0" />
 					</TextBlock.Text>
 				</TextBlock>
@@ -226,7 +226,7 @@
 				<TextBlock.Text>
 					<Binding 
 						RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-						Path="WindowInfoModel.HasFocus" 
+						Path="SelectedWindowViewModel.HasFocus" 
 						Converter="{StaticResource BooleanToStringConverter}"
 						FallbackValue="Focus state" />
 				</TextBlock.Text>
