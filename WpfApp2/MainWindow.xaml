@@ -13,7 +13,7 @@
 		<Style x:Key="TrimmedText" TargetType="{x:Type TextBlock}">
 			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
 		</Style>
-		<Style x:Key="outputGrid" TargetType="{x:Type DataGrid}" BasedOn="{StaticResource {x:Type DataGrid}}">
+		<Style x:Key="leftSide" TargetType="{x:Type Grid}">
 			<Setter Property="Grid.ColumnSpan" Value="1" />
 			<Style.Triggers>
 				<MultiDataTrigger>
@@ -27,21 +27,7 @@
 				</MultiDataTrigger>
 			</Style.Triggers>
 		</Style>
-		<Style x:Key="searchBox" TargetType="{x:Type Grid}">
-			<Setter Property="Grid.ColumnSpan" Value="1" />
-			<Style.Triggers>
-				<MultiDataTrigger>
-					<MultiDataTrigger.Conditions>
-						<Condition Value="-1" Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}"/>
-						<Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self}, Path=(componentModel:DesignerProperties.IsInDesignMode)}"/>
-					</MultiDataTrigger.Conditions>
-					<MultiDataTrigger.Setters>
-						<Setter Property="Grid.ColumnSpan" Value="2" />
-					</MultiDataTrigger.Setters>
-				</MultiDataTrigger>
-			</Style.Triggers>
-		</Style>
-		<Style x:Key="selectedPanel" TargetType="{x:Type Grid}">
+		<Style x:Key="rightSide" TargetType="{x:Type Grid}">
 			<Setter Property="Visibility" Value="Visible" />
 			<Style.Triggers>
 				<MultiDataTrigger>
@@ -56,45 +42,39 @@
 			</Style.Triggers>
 		</Style>
 	</Window.Resources>
+
 	<Grid Margin="16">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="*" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
+
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*"/>
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
 
-		<DataGrid Name="outputGrid" 
-				  Style="{DynamicResource outputGrid}"
-				  Grid.Row="0"
-				  Margin="0,0,0,8"
-				  IsReadOnly="True" 
-				  AutoGenerateColumns="False" 
-				  SelectionMode="Single"
-				  HeadersVisibility="Column"
-				  HorizontalGridLinesBrush="{x:Null}" 
-				  VerticalGridLinesBrush="{x:Null}" 
-				  Background="{x:Null}" 
-				  BorderBrush="#FFABADB3">
-			<DataGrid.Columns>
-				<DataGridTextColumn Header="Name" Binding="{Binding Name}" ElementStyle="{StaticResource TrimmedText}" Width="*" />
-				<DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="50" />
-			</DataGrid.Columns>
-		</DataGrid>
-
-		<Grid Grid.Row="1" Style="{DynamicResource searchBox}">
+		<!-- Left side -->
+		<Grid Grid.Column="0" Style="{DynamicResource leftSide}">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 
-			<Button Name="actionButton" 
-					Padding="0"
-					Content="_Refresh" 
-					Click="RefreshWindowList_Click" 
-					ToolTip="Refresh program list">
+			<DataGrid Grid.ColumnSpan="2" Name="outputGrid" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" HeadersVisibility="Column"
+					  Margin="0,0,0,8"
+					  HorizontalGridLinesBrush="{x:Null}" 
+					  VerticalGridLinesBrush="{x:Null}" 
+					  Background="{x:Null}" 
+					  BorderBrush="#FFABADB3">
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="Name" Binding="{Binding Name}" ElementStyle="{StaticResource TrimmedText}" Width="*" />
+					<DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="50" />
+				</DataGrid.Columns>
+			</DataGrid>
+
+			<Button Grid.Row="1" Padding="0" Click="RefreshWindowList_Click" ToolTip="Refresh program list">
 				<Button.ContentTemplate>
 					<DataTemplate>
 						<StackPanel Orientation="Horizontal" Margin="4">
@@ -104,47 +84,32 @@
 				</Button.ContentTemplate>
 			</Button>
 
-			<TextBox Name="processNameInput"
-					 Grid.Column="2"
-					 Margin="8,0,0,0"
-					 VerticalContentAlignment="Center" 
-					 ToolTip="Search program list"
-					 TextWrapping="Wrap" 
-					 FontSize="18"
-					 Text="" 
-					 TextChanged="ProcessNameInput_TextChanged" />
+			<TextBox Name="processNameInput" Grid.Row="1" Grid.Column="2" Margin="8,0,0,0" FontSize="18" VerticalContentAlignment="Center" ToolTip="Search program list" TextChanged="ProcessNameInput_TextChanged" />
 		</Grid>
 
-		<Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
-			Margin="8,0,0,0" Style="{DynamicResource selectedPanel}">
-
+		<!-- Right side -->
+		<Grid Grid.Column="1" Margin="16,0,0,0" Style="{DynamicResource rightSide}">
 			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
 
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 
-			<StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Vertical" Margin="0,0,0,16">
+			<StackPanel Grid.ColumnSpan="2" Orientation="Vertical" Margin="0,0,0,16">
 				<emoji:TextBlock FontSize="20" MaxHeight="60" TextWrapping="Wrap" TextTrimming="CharacterEllipsis">
 					<TextBlock.Text>
-						<Binding 
-							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="SelectedWindowViewModel.Title" 
-							FallbackValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin viverra posuere tempor. Praesent sagittis eros purus, ac congue quam sollicitudin quis." />
+						<Binding Path="SelectedWindowViewModel.Title" RelativeSource="{RelativeSource AncestorType={x:Type Window}}" FallbackValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin viverra posuere tempor. Praesent sagittis eros purus, ac congue quam sollicitudin quis." />
 					</TextBlock.Text>
 				</emoji:TextBlock>
 				<TextBlock FontSize="12" TextWrapping="Wrap" TextTrimming="CharacterEllipsis">
 					<TextBlock.Text>
 						<Binding 
-							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="SelectedWindowViewModel.Process" 
-							FallbackValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin viverra posuere tempor." />
+							Path="SelectedWindowViewModel.Process" RelativeSource="{RelativeSource AncestorType={x:Type Window}}" FallbackValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin viverra posuere tempor." />
 					</TextBlock.Text>
 				</TextBlock>
 			</StackPanel>
@@ -155,66 +120,39 @@
 					<RowDefinition Height="4*" />
 					<RowDefinition Height="1*" />
 				</Grid.RowDefinitions>
+
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="1*" />
 					<ColumnDefinition Width="3*" />
 					<ColumnDefinition Width="1*"/>
 				</Grid.ColumnDefinitions>
 
-				<TextBlock Grid.Row="0" 
-						   Grid.Column="1"
-						   HorizontalAlignment="Center" 
-						   VerticalAlignment="Bottom">
+				<TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
 					<TextBlock.Text>
-						<Binding 
-							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="SelectedWindowViewModel.Top"
-							FallbackValue="0" />
+						<Binding Path="SelectedWindowViewModel.Top" RelativeSource="{RelativeSource AncestorType={x:Type Window}}" FallbackValue="0" />
 					</TextBlock.Text>
 				</TextBlock>
 
-				<TextBlock Grid.Row="1" 
-						   Grid.Column="0"
-						   HorizontalAlignment="Right" 
-						   VerticalAlignment="Center">
+				<TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">
 					<TextBlock.Text>
-						<Binding 
-							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="SelectedWindowViewModel.Left"
-							FallbackValue="0" />
+						<Binding Path="SelectedWindowViewModel.Left" RelativeSource="{RelativeSource AncestorType={x:Type Window}}" FallbackValue="0" />
 					</TextBlock.Text>
 				</TextBlock>
 
-				<Border 
-					Grid.Row="1" 
-					Grid.Column="1" 
-					BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" 
-					BorderThickness="1" 
-					Margin="4" />
+				<Border Grid.Row="1" Grid.Column="1" BorderThickness="1" Margin="4" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
 
-				<TextBlock Grid.Row="1" 
-						   Grid.Column="2"
-						   HorizontalAlignment="Left" 
-						   VerticalAlignment="Center">
+				<TextBlock Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
 					<TextBlock.Text>
-						<Binding 
-							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="SelectedWindowViewModel.Height"
-							FallbackValue="0" />
+						<Binding Path="SelectedWindowViewModel.Height" RelativeSource="{RelativeSource AncestorType={x:Type Window}}" FallbackValue="0" />
 					</TextBlock.Text>
 				</TextBlock>
 
-				<TextBlock Grid.Row="2" 
-						   Grid.Column="1"
-						   HorizontalAlignment="Center" 
-						   VerticalAlignment="Top">
+				<TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top">
 					<TextBlock.Text>
-						<Binding 
-							RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-							Path="SelectedWindowViewModel.Width"
-							FallbackValue="0" />
+						<Binding Path="SelectedWindowViewModel.Width" RelativeSource="{RelativeSource AncestorType={x:Type Window}}" FallbackValue="0" />
 					</TextBlock.Text>
 				</TextBlock>
+
 			</Grid>
 
 			<TextBlock Grid.Row="2" HorizontalAlignment="Center">
@@ -222,15 +160,11 @@
 					<localdata:BoolToStringConverter x:Key="BooleanToStringConverter" FalseValue="No focus" TrueValue="Has focus" />
 				</TextBlock.Resources>
 				<TextBlock.Text>
-					<Binding 
-						RelativeSource="{RelativeSource AncestorType={x:Type Window}}" 
-						Path="SelectedWindowViewModel.HasFocus" 
-						Converter="{StaticResource BooleanToStringConverter}"
-						FallbackValue="Focus state" />
+					<Binding Path="SelectedWindowViewModel.HasFocus" RelativeSource="{RelativeSource AncestorType={x:Type Window}}" Converter="{StaticResource BooleanToStringConverter}" FallbackValue="Focus state" />
 				</TextBlock.Text>
 			</TextBlock>
 
-			<Button Grid.Row="1" Grid.Column="1" Width="48" Height="48" ToolTip="Lock mouse to window">
+			<Button Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Width="48" Height="48" ToolTip="Lock mouse to window">
 				<emoji:TextBlock Text="🔒" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center" />
 			</Button>
 		</Grid>
