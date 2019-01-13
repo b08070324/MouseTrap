@@ -66,6 +66,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BatchedObservableCollection.cs" />
+    <Compile Include="BoolToValueConverter.cs" />
     <Compile Include="PollingTask.cs" />
     <Compile Include="StyleDictionary.cs" />
     <Compile Include="Win32Interop.cs" />

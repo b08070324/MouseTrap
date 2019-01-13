@@ -1,16 +1,19 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace WpfApp2
 {
 	public class WindowInfoModel : INotifyPropertyChanged
 	{
+		private IntPtr handle = IntPtr.Zero;
 		private string title = "Select a program";
 		private string process = "";
 		private int top = 0;
 		private int left = 0;
 		private int width = 0;
 		private int height = 0;
+		private bool hasFocus = false;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -18,6 +21,12 @@ namespace WpfApp2
 		{
 			field = value;
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		public IntPtr Handle
+		{
+			get { return handle; }
+			set { SetField(ref handle, value); }
 		}
 
 		public string Title
@@ -54,6 +63,20 @@ namespace WpfApp2
 		{
 			get { return height; }
 			set { SetField(ref height, value); }
+		}
+
+		public bool HasFocus
+		{
+			get { return hasFocus; }
+			set { SetField(ref hasFocus, value); }
+		}
+
+		public void SetDimensions(int top, int left, int right, int bottom)
+		{
+			Top = top;
+			Left = left;
+			Width = (right - left);
+			Height = (bottom - top);
 		}
 	}
 }

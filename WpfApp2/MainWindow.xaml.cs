@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace WpfApp2
 {
@@ -23,17 +25,16 @@ namespace WpfApp2
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		// Datagrid source
-		// Using a temp list to aggregate fresh data before updating the datagrid collection
+		private SynchronizationContext uiContext = SynchronizationContext.Current;
+
 		private List<WindowInformation> TempWindowInfo { get; set; }
 		private BatchedObservableCollection<WindowInformation> WindowInfo { get; set; }
 		private CollectionViewSource CollectionViewSource { get; set; }
+
 		public WindowInfoModel WindowInfoModel { get; set; }
 
-		// To allow updates to UI thread from worker thread
-		// Can use either SynchronizationContext and SynchronizationContext.Send()
-		// or BindingOperations.EnableCollectionSynchronization with a larger perf overhead
-		private SynchronizationContext uiContext = SynchronizationContext.Current;
+		private readonly BackgroundWorker worker = new BackgroundWorker();
+		public bool IsPolling { get; set; }
 
 		public MainWindow()
 		{
@@ -47,29 +48,80 @@ namespace WpfApp2
 			CollectionViewSource.Filter += CollectionViewSource_Filter;
 			outputGrid.ItemsSource = CollectionViewSource.View;
 			outputGrid.SelectedCellsChanged += OutputGrid_SelectedCellsChanged;
+
 			WindowInfoModel = new WindowInfoModel();
+
 			UpdateWindowInformation();
+
+			worker.DoWork += worker_DoWork;
+			worker.RunWorkerCompleted += worker_RunWorkerCompleted;
+		}
+
+		private void worker_startPolling()
+		{
+			if (!IsPolling)
+			{
+				IsPolling = true;
+				worker.RunWorkerAsync();
+				System.Diagnostics.Debug.WriteLine("Start polling");
+			}
+		}
+
+		private void worker_stopPolling()
+		{
+			IsPolling = false;
+		}
+
+		// This run in worker thread
+		private void worker_DoWork(object sender, DoWorkEventArgs e)
+		{
+			Win32Interop.GetWindowRect(WindowInfoModel.Handle, out Win32Interop.Rect rect);
+			WindowInfoModel.SetDimensions(rect.Top, rect.Left, rect.Right, rect.Bottom);
+
+			var foregroundWindow = Win32Interop.GetForegroundWindow();
+			WindowInfoModel.HasFocus = (WindowInfoModel.Handle == foregroundWindow);
+
+			Thread.Sleep(50);
+		}
+
+		// This runs in UI thread
+		private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			if (IsPolling)
+			{
+				worker.RunWorkerAsync();
+			}
+			else
+			{
+				System.Diagnostics.Debug.WriteLine("Stop polling");
+			}
 		}
 
 		private void OutputGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
 		{
 			// Return if no cells selected
-			if (e.AddedCells.Count < 1) return;
+			if (e.AddedCells.Count < 1)
+			{
+				worker_stopPolling();
+				return;
+			}
 
 			// Get selected item
 			var item = e.AddedCells.First().Item as WindowInformation;
 			if (item == null)
 			{
+				worker_stopPolling();
 				return;
 			}
 
 			// Update view model
+			WindowInfoModel.Handle = item.Handle;
 			WindowInfoModel.Title = item.Name;
 			WindowInfoModel.Process = item.FullProcessName;
-			WindowInfoModel.Top = item.Top;
-			WindowInfoModel.Left = item.Left;
-			WindowInfoModel.Width = (item.Right - item.Left);
-			WindowInfoModel.Height = (item.Bottom - item.Top);
+			WindowInfoModel.SetDimensions(item.Top, item.Left, item.Right, item.Bottom);
+
+			// Start polling
+			worker_startPolling();
 		}
 
 		private void ProcessNameInput_TextChanged(object sender, TextChangedEventArgs e)
@@ -157,6 +209,10 @@ namespace WpfApp2
 				Top = rect.Top,
 				ExStyle = exStyle
 			};
+		}
+
+		private void Button_Click_1(object sender, RoutedEventArgs e)
+		{
 		}
 	}
 }
