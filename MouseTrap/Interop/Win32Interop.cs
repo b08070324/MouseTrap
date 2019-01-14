@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace WpfApp2.Interop
+namespace MouseTrap.Interop
 {
 	public delegate bool WindowEnumCallback(IntPtr hWnd, int lParam);
 

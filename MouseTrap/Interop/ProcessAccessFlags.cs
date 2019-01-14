@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WpfApp2.Interop
+namespace MouseTrap.Interop
 {
 	[Flags]
 	public enum ProcessAccessFlags : uint

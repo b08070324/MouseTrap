@@ -1,15 +1,12 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-using WpfApp2.Interop;
+using MouseTrap.Interop;
 
-namespace WpfApp2.Models
+namespace MouseTrap.Models
 {
-    public class WindowInformation
+	public class WindowInformation
 	{
 		public IntPtr Handle { get; set; }
 		public string Name { get; set; }

@@ -7,11 +7,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
-using WpfApp2.Interop;
-using WpfApp2.Models;
-using WpfApp2.Data;
+using MouseTrap.Interop;
+using MouseTrap.Models;
+using MouseTrap.Data;
 
-namespace WpfApp2
+namespace MouseTrap
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml

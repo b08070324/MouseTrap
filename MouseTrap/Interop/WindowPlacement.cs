@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace WpfApp2.Interop
+namespace MouseTrap.Interop
 {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct WindowPlacement

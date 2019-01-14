@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{25A3A4A4-9E6F-4D8A-B470-530A4043AA0F}</ProjectGuid>
+    <ProjectGuid>{F7B111F9-E7F6-4F5E-AE01-8401C5242E22}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>WpfApp2</RootNamespace>
-    <AssemblyName>WpfApp2</AssemblyName>
+    <RootNamespace>MouseTrap</RootNamespace>
+    <AssemblyName>MouseTrap</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -38,7 +38,6 @@
     <Reference Include="Emoji.Wpf, Version=0.0.0.16, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Emoji.Wpf.0.0.16-experimental\lib\net30\Emoji.Wpf.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -65,6 +64,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Data\BatchedObservableCollection.cs" />
     <Compile Include="Data\BoolToValueConverter.cs" />
     <Compile Include="Interop\GWL.cs" />
@@ -76,24 +83,16 @@
     <Compile Include="Interop\Win32Interop.cs" />
     <Compile Include="Interop\WindowPlacement.cs" />
     <Compile Include="Interop\WindowStylesEx.cs" />
-    <Compile Include="Models\ModelWithNotification.cs" />
-    <Compile Include="Models\SelectedWindowModel.cs" />
-    <Compile Include="Models\TrapMargin.cs" />
-    <Compile Include="Models\WindowInformation.cs" />
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\ModelWithNotification.cs" />
+    <Compile Include="Models\SelectedWindowModel.cs" />
+    <Compile Include="Models\TrapMargin.cs" />
+    <Compile Include="Models\WindowInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

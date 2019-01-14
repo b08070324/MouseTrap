@@ -1,4 +1,4 @@
-﻿namespace WpfApp2.Interop
+﻿namespace MouseTrap.Interop
 {
 	public enum HookType : int
 	{

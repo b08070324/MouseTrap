@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace WpfApp2.Models
+﻿namespace MouseTrap.Models
 {
 	public class SelectedWindowModel : ModelWithNotification
 	{

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace WpfApp2.Models
+namespace MouseTrap.Models
 {
 	public abstract class ModelWithNotification : INotifyPropertyChanged
 	{

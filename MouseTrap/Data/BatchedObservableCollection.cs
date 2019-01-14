@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace WpfApp2.Data
+namespace MouseTrap.Data
 {
 	public class BatchedObservableCollection<T> : ObservableCollection<T>
 	{

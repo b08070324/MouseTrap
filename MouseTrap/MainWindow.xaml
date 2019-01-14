@@ -1,14 +1,14 @@
-﻿<Window x:Class="WpfApp2.MainWindow"
-		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
-		xmlns:local="clr-namespace:WpfApp2"
-		xmlns:localdata="clr-namespace:WpfApp2.Data"
+﻿<Window x:Class="MouseTrap.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=PresentationFramework"
-		mc:Ignorable="d"
-		Title="MainWindow" Height="400" MinHeight="300" Width="700" MinWidth="500" WindowStartupLocation="CenterScreen">
+		xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+        xmlns:local="clr-namespace:MouseTrap"
+		xmlns:localdata="clr-namespace:MouseTrap.Data"
+        mc:Ignorable="d"
+        Title="Mouse Trap" Height="400" MinHeight="300" Width="700" MinWidth="500" WindowStartupLocation="CenterScreen">
 	<Window.Resources>
 		<Style x:Key="TrimmedText" TargetType="{x:Type TextBlock}">
 			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
