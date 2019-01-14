@@ -21,6 +21,7 @@ using System.Windows.Threading;
 using WpfApp2.Interop;
 using WpfApp2.Models;
 using WpfApp2.Data;
+using System.Runtime.InteropServices;
 
 namespace WpfApp2
 {
@@ -46,10 +47,16 @@ namespace WpfApp2
 		private readonly BackgroundWorker worker;
 		public bool isPolling;
 
+		// Mouse hook
+		private HookProc mouseHookCallback;
+		private IntPtr mouseHookPtr;
+
 		// Constructor
 		public MainWindow()
 		{
 			InitializeComponent();
+			this.Loaded += MainWindow_Loaded;
+			this.Closing += MainWindow_Closing;
 
 			// View model binding
 			tempWindowList = new List<WindowInformation>();
@@ -61,11 +68,13 @@ namespace WpfApp2
 
 			// Update thread
 			worker = new BackgroundWorker();
-			worker.DoWork += worker_DoWork;
-			worker.RunWorkerCompleted += worker_RunWorkerCompleted;
+			worker.WorkerSupportsCancellation = true;
+			worker.DoWork += DoWork;
+			worker.RunWorkerCompleted += RunWorkerCompleted;
 
-			// Continue when app is loaded
-			this.Loaded += MainWindow_Loaded;
+			// Global mouse hook
+			mouseHookCallback = new HookProc(MouseHookCallbackFunction);
+			mouseHookPtr = IntPtr.Zero;
 		}
 
 		private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -73,8 +82,17 @@ namespace WpfApp2
 			// Store a handle to main app window so it can be ignored in list
 			appHandle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
 
+			// Global mouse hook
+			HookMouse();
+
 			// Update window grid
 			RefreshDataGrid();
+		}
+
+		private void MainWindow_Closing(object sender, CancelEventArgs e)
+		{
+			StopWorker();
+			UnhookMouse();
 		}
 
 		// View updates
@@ -128,7 +146,7 @@ namespace WpfApp2
 
 		// Threading
 
-		private void worker_startPolling()
+		private void StartWorker()
 		{
 			if (!isPolling)
 			{
@@ -138,25 +156,33 @@ namespace WpfApp2
 			}
 		}
 
-		private void worker_stopPolling()
+		private void StopWorker()
 		{
 			isPolling = false;
+			worker.CancelAsync();
 		}
 
 		// This run in worker thread
-		private void worker_DoWork(object sender, DoWorkEventArgs e)
+		private void DoWork(object sender, DoWorkEventArgs e)
 		{
-			// Update underlying data
-			selectedWindow.Update();
-			var foregroundWindow = Win32Interop.GetForegroundWindow();
-			selectedWindowHasFocus = (selectedWindow.Handle == foregroundWindow);
+			if (worker.CancellationPending)
+			{
+				e.Cancel = true;
+			}
+			else
+			{
+				// Update underlying data
+				selectedWindow.Update();
+				var foregroundWindow = Win32Interop.GetForegroundWindow();
+				selectedWindowHasFocus = (selectedWindow.Handle == foregroundWindow);
 
-			// Throttle polling
-			Thread.Sleep(150);
+				// Throttle polling
+				Thread.Sleep(150);
+			}
 		}
 
 		// This runs in UI thread
-		private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		private void RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			if (isPolling)
 			{
@@ -178,6 +204,28 @@ namespace WpfApp2
 			}
 		}
 
+		// Mouse hook
+
+		private void HookMouse()
+		{
+			if (mouseHookPtr == IntPtr.Zero)
+			{
+				var hMod = Marshal.GetHINSTANCE(typeof(MainWindow).Module);
+				mouseHookPtr = Win32Interop.SetWindowsHookEx(HookType.WH_MOUSE_LL, mouseHookCallback, hMod, 0);
+			}
+		}
+
+		private void UnhookMouse()
+		{
+			if (mouseHookPtr != IntPtr.Zero) Win32Interop.UnhookWindowsHookEx(mouseHookPtr);
+			mouseHookPtr = IntPtr.Zero;
+		}
+
+		private IntPtr MouseHookCallbackFunction(int code, IntPtr wParam, IntPtr lParam)
+		{
+			return Win32Interop.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
+		}
+
 		// Input event handlers
 
 		private void RefreshWindowList_Click(object sender, RoutedEventArgs e)
@@ -192,8 +240,8 @@ namespace WpfApp2
 			else selectedWindow = null;
 
 			// Start (or continue) polling if window was selected
-			if (selectedWindow != null) worker_startPolling();
-			else worker_stopPolling();
+			if (selectedWindow != null) StartWorker();
+			else StopWorker();
 		}
 
 		private void ProcessNameInput_TextChanged(object sender, TextChangedEventArgs e)
