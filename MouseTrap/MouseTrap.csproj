@@ -90,8 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\ModelWithNotification.cs" />
-    <Compile Include="Models\SelectedWindowModel.cs" />
-    <Compile Include="Models\TrapMargin.cs" />
+    <Compile Include="Models\WindowModel.cs" />
     <Compile Include="Models\WindowInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

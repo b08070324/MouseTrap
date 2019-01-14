@@ -22,15 +22,14 @@ namespace MouseTrap
 		private IntPtr appHandle;
 		private string searchText = string.Empty;
 		private WindowInformation selectedWindow;
-		private bool selectedWindowHasFocus;
-		private bool mouseTrapRequested;
 
-		// View data binding
-		private List<WindowInformation> tempWindowList;
-		private BatchedObservableCollection<WindowInformation> observedWindowList;
-		public CollectionViewSource WindowListViewSource { get; set; }
-		public SelectedWindowModel SelectedWindowViewModel { get; set; }
-		public TrapMargin TrapMargin { get; set; }
+		// General app variables for binding etc
+		public WindowModel WindowModel { get; set; } = new WindowModel();
+
+		// Datagrid binding
+		private List<WindowInformation> tempWindowList = new List<WindowInformation>();
+		private BatchedObservableCollection<WindowInformation> observedWindowList = new BatchedObservableCollection<WindowInformation>();
+		public CollectionViewSource WindowListViewSource { get; set; } = new CollectionViewSource();
 
 		// Threading
 		private SynchronizationContext uiContext = SynchronizationContext.Current;
@@ -49,13 +48,8 @@ namespace MouseTrap
 			this.Closing += MainWindow_Closing;
 
 			// View model binding
-			tempWindowList = new List<WindowInformation>();
-			observedWindowList = new BatchedObservableCollection<WindowInformation>();
-			WindowListViewSource = new CollectionViewSource();
 			WindowListViewSource.Source = observedWindowList;
 			WindowListViewSource.Filter += CollectionViewSource_Filter;
-			SelectedWindowViewModel = new SelectedWindowModel();
-			TrapMargin = new TrapMargin { Value = 8 };
 
 			// Update thread
 			worker = new BackgroundWorker();
@@ -88,21 +82,12 @@ namespace MouseTrap
 
 		// View updates etc
 
-		private void DisableMouseTrap()
-		{
-			mouseTrapRequested = false;
-			trapButton.Style = Resources["unactivatedButton"] as Style;
-		}
-
-		private void EnableMouseTrap()
-		{
-			mouseTrapRequested = true;
-			trapButton.Style = Resources["activatedButton"] as Style;
-		}
-
 		private void RefreshDataGrid()
 		{
 			System.Diagnostics.Debug.WriteLine("Refresh");
+
+			// Disable mouse trap
+			WindowModel.MouseTrapRequested = false;
 
 			// Reset temp list
 			tempWindowList.Clear();
@@ -113,8 +98,7 @@ namespace MouseTrap
 			// Update UI etc
 			uiContext.Send(x =>
 			{
-				DisableMouseTrap(); // in this block because setting styles in code
-				outputGrid.SelectedIndex = -1;
+				WindowModel.SelectedIndex = -1;
 				observedWindowList.SetItems(tempWindowList);
 			}
 			, null);
@@ -139,14 +123,6 @@ namespace MouseTrap
 			tempWindowList.Add(info);
 
 			return true;
-		}
-
-		private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
-		{
-			var item = e.Item as WindowInformation;
-			var titleMatches = item.Name.ToLower().Contains(searchText);
-			var procNameMatches = item.ProcessName.ToLower().Contains(searchText);
-			e.Accepted = titleMatches || procNameMatches;
 		}
 
 		// Threading
@@ -180,7 +156,7 @@ namespace MouseTrap
 				if (selectedWindow.Update())
 				{
 					var foregroundWindow = Win32Interop.GetForegroundWindow();
-					selectedWindowHasFocus = (selectedWindow.Handle == foregroundWindow);
+					WindowModel.HasFocus = (selectedWindow.Handle == foregroundWindow);
 
 					// Throttle polling
 					Thread.Sleep(150);
@@ -199,13 +175,12 @@ namespace MouseTrap
 			if (isPolling)
 			{
 				// Update view model
-				SelectedWindowViewModel.Title = selectedWindow.Name;
-				SelectedWindowViewModel.Process = selectedWindow.FullProcessName;
-				SelectedWindowViewModel.Top = selectedWindow.Top;
-				SelectedWindowViewModel.Left = selectedWindow.Left;
-				SelectedWindowViewModel.Width = (selectedWindow.Right - selectedWindow.Left);
-				SelectedWindowViewModel.Height = (selectedWindow.Bottom - selectedWindow.Top);
-				SelectedWindowViewModel.HasFocus = selectedWindowHasFocus;
+				WindowModel.Title = selectedWindow.Name;
+				WindowModel.Process = selectedWindow.FullProcessName;
+				WindowModel.Top = selectedWindow.Top;
+				WindowModel.Left = selectedWindow.Left;
+				WindowModel.Width = (selectedWindow.Right - selectedWindow.Left);
+				WindowModel.Height = (selectedWindow.Bottom - selectedWindow.Top);
 
 				// Execute another poll
 				worker.RunWorkerAsync();
@@ -239,19 +214,19 @@ namespace MouseTrap
 			var isMouseMove = (wParam.ToInt32() == 0x0200); // #define WM_MOUSEMOVE 0x0200
 
 			// Check if message should be handled
-			if (code >= 0 && isMouseMove && mouseTrapRequested && selectedWindowHasFocus)
+			if (code >= 0 && isMouseMove && WindowModel.MouseTrapRequested && WindowModel.HasFocus)
 			{
 				// Get pointer data
 				var mouseInfo = (MSLLHOOKSTRUCT)System.Runtime.InteropServices.Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
 				var point = mouseInfo.pt;
 
 				// Limit X
-				if (point.X < selectedWindow.Left + TrapMargin.Value) point.X = selectedWindow.Left + TrapMargin.Value;
-				else if (point.X > selectedWindow.Right - TrapMargin.Value) point.X = selectedWindow.Right - TrapMargin.Value;
+				if (point.X < selectedWindow.Left + WindowModel.TrapMargin) point.X = selectedWindow.Left + WindowModel.TrapMargin;
+				else if (point.X > selectedWindow.Right - WindowModel.TrapMargin) point.X = selectedWindow.Right - WindowModel.TrapMargin;
 
 				// Limit Y
-				if (point.Y < selectedWindow.Top + TrapMargin.Value) point.Y = selectedWindow.Top + TrapMargin.Value;
-				else if (point.Y > selectedWindow.Bottom - TrapMargin.Value) point.Y = selectedWindow.Bottom - TrapMargin.Value;
+				if (point.Y < selectedWindow.Top + WindowModel.TrapMargin) point.Y = selectedWindow.Top + WindowModel.TrapMargin;
+				else if (point.Y > selectedWindow.Bottom - WindowModel.TrapMargin) point.Y = selectedWindow.Bottom - WindowModel.TrapMargin;
 
 				// Move cursor
 				Win32Interop.SetCursorPos(point.X, point.Y);
@@ -264,7 +239,7 @@ namespace MouseTrap
 			return Win32Interop.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
 		}
 
-		// Input event handlers
+		// Event handlers
 
 		private void RefreshWindowList_Click(object sender, RoutedEventArgs e)
 		{
@@ -289,10 +264,17 @@ namespace MouseTrap
 			WindowListViewSource.View.Refresh();
 		}
 
+		private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
+		{
+			var item = e.Item as WindowInformation;
+			var titleMatches = item.Name.ToLower().Contains(searchText);
+			var procNameMatches = item.ProcessName.ToLower().Contains(searchText);
+			e.Accepted = titleMatches || procNameMatches;
+		}
+
 		private void TrapMouse_Click(object sender, RoutedEventArgs e)
 		{
-			if (mouseTrapRequested) DisableMouseTrap();
-			else EnableMouseTrap();
+			WindowModel.MouseTrapRequested = !WindowModel.MouseTrapRequested;
 		}
 	}
 }
