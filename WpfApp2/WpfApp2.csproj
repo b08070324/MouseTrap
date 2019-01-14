@@ -69,13 +69,16 @@
     <Compile Include="Data\BoolToValueConverter.cs" />
     <Compile Include="Interop\GWL.cs" />
     <Compile Include="Interop\HookType.cs" />
+    <Compile Include="Interop\MSLLHOOKSTRUCT.cs" />
     <Compile Include="Interop\Point.cs" />
     <Compile Include="Interop\ProcessAccessFlags.cs" />
     <Compile Include="Interop\Rect.cs" />
     <Compile Include="Interop\Win32Interop.cs" />
     <Compile Include="Interop\WindowPlacement.cs" />
     <Compile Include="Interop\WindowStylesEx.cs" />
+    <Compile Include="Models\ModelWithNotification.cs" />
     <Compile Include="Models\SelectedWindowModel.cs" />
+    <Compile Include="Models\TrapMargin.cs" />
     <Compile Include="Models\WindowInformation.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

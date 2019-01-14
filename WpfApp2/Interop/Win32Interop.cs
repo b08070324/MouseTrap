@@ -72,6 +72,9 @@ namespace WpfApp2.Interop
 		[DllImport("user32.dll", SetLastError = true)]
 		public static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
+		[DllImport("user32.dll")]
+		public static extern bool SetCursorPos(int X, int Y);
+
 		public static bool HasExStyle(IntPtr exStyle, WindowStylesEx style)
 		{
 			return (exStyle.ToInt32() & (int)style) != 0;

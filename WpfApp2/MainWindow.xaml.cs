@@ -31,16 +31,18 @@ namespace WpfApp2
 	public partial class MainWindow : Window
 	{
 		// Underlying data
+		private IntPtr appHandle;
 		private string searchText = string.Empty;
 		private WindowInformation selectedWindow;
 		private bool selectedWindowHasFocus;
-		private IntPtr appHandle;
+		private bool mouseTrapRequested;
 
 		// View data binding
 		private List<WindowInformation> tempWindowList;
 		private BatchedObservableCollection<WindowInformation> observedWindowList;
 		public CollectionViewSource WindowListViewSource { get; set; }
 		public SelectedWindowModel SelectedWindowViewModel { get; set; }
+		public TrapMargin TrapMargin { get; set; }
 
 		// Threading
 		private SynchronizationContext uiContext = SynchronizationContext.Current;
@@ -65,6 +67,7 @@ namespace WpfApp2
 			WindowListViewSource.Source = observedWindowList;
 			WindowListViewSource.Filter += CollectionViewSource_Filter;
 			SelectedWindowViewModel = new SelectedWindowModel();
+			TrapMargin = new TrapMargin { Value = 8 };
 
 			// Update thread
 			worker = new BackgroundWorker();
@@ -223,6 +226,28 @@ namespace WpfApp2
 
 		private IntPtr MouseHookCallbackFunction(int code, IntPtr wParam, IntPtr lParam)
 		{
+			if (code >= 0 && mouseTrapRequested && selectedWindowHasFocus)
+			{
+				// Get pointer data
+				var mouseInfo = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
+				var point = mouseInfo.pt;
+
+				// Limit X
+				if (point.X < selectedWindow.Left + TrapMargin.Value) point.X = selectedWindow.Left + TrapMargin.Value;
+				else if (point.X > selectedWindow.Right - TrapMargin.Value) point.X = selectedWindow.Right - TrapMargin.Value;
+
+				// Limit Y
+				if (point.Y < selectedWindow.Top + TrapMargin.Value) point.Y = selectedWindow.Top + TrapMargin.Value;
+				else if (point.Y > selectedWindow.Bottom - TrapMargin.Value) point.Y = selectedWindow.Bottom - TrapMargin.Value;
+
+				// Move cursor
+				Win32Interop.SetCursorPos(point.X, point.Y);
+
+				// Done
+				return new IntPtr(1);
+			}
+
+			// Skip
 			return Win32Interop.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
 		}
 
@@ -249,6 +274,11 @@ namespace WpfApp2
 			var box = e.Source as TextBox;
 			searchText = box.Text;
 			WindowListViewSource.View.Refresh();
+		}
+
+		private void TrapMouse_Click(object sender, RoutedEventArgs e)
+		{
+			mouseTrapRequested = !mouseTrapRequested;
 		}
 	}
 }

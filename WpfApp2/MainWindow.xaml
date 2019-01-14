@@ -164,7 +164,7 @@
 				</TextBlock.Text>
 			</TextBlock>
 
-			<Button Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Width="48" Height="48" ToolTip="Lock mouse to window">
+			<Button Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Width="48" Height="48" ToolTip="Lock mouse to window" Click="TrapMouse_Click">
 				<emoji:TextBlock Text="🔒" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center" />
 			</Button>
 		</Grid>

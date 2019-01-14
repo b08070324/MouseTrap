@@ -1,10 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace WpfApp2.Models
 {
-	public class SelectedWindowModel : INotifyPropertyChanged
+	public class SelectedWindowModel : ModelWithNotification
 	{
 		private string title = "Select a program";
 		private string process = "";
@@ -13,14 +11,6 @@ namespace WpfApp2.Models
 		private int width = 0;
 		private int height = 0;
 		private bool hasFocus = false;
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		private void SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
-		{
-			field = value;
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
 
 		public string Title
 		{
