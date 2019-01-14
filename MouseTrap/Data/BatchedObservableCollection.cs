@@ -12,7 +12,6 @@ namespace MouseTrap.Data
 		public virtual void SetItems(ICollection<T> collection)
 		{
 			if (collection == null) return;
-			if (collection.Count < 1) return;
 
 			Items.Clear();
 
