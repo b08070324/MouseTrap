@@ -32,9 +32,12 @@ namespace WpfApp2.Models
 			UpdateVariableData();
 		}
 
-		public void Update()
+		public bool Update()
 		{
+			if (!Win32Interop.IsWindow(Handle)) return false;
+
 			UpdateVariableData();
+			return true;
 		}
 
 		private void PopulateMainData(IntPtr hWnd)

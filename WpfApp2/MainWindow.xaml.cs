@@ -1,27 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 using WpfApp2.Interop;
 using WpfApp2.Models;
 using WpfApp2.Data;
-using System.Runtime.InteropServices;
 
 namespace WpfApp2
 {
@@ -98,7 +86,19 @@ namespace WpfApp2
 			UnhookMouse();
 		}
 
-		// View updates
+		// View updates etc
+
+		private void DisableMouseTrap()
+		{
+			mouseTrapRequested = false;
+			trapButton.Style = Resources["unactivatedButton"] as Style;
+		}
+
+		private void EnableMouseTrap()
+		{
+			mouseTrapRequested = true;
+			trapButton.Style = Resources["activatedButton"] as Style;
+		}
 
 		private void RefreshDataGrid()
 		{
@@ -110,9 +110,11 @@ namespace WpfApp2
 			// Populate temp list
 			Win32Interop.EnumWindows(new WindowEnumCallback(EnumWindowsCallback), 0);
 
-			// Update datagrid
+			// Update UI etc
 			uiContext.Send(x =>
 			{
+				DisableMouseTrap(); // in this block because setting styles in code
+				outputGrid.SelectedIndex = -1;
 				observedWindowList.SetItems(tempWindowList);
 			}
 			, null);
@@ -175,12 +177,19 @@ namespace WpfApp2
 			else
 			{
 				// Update underlying data
-				selectedWindow.Update();
-				var foregroundWindow = Win32Interop.GetForegroundWindow();
-				selectedWindowHasFocus = (selectedWindow.Handle == foregroundWindow);
+				if (selectedWindow.Update())
+				{
+					var foregroundWindow = Win32Interop.GetForegroundWindow();
+					selectedWindowHasFocus = (selectedWindow.Handle == foregroundWindow);
 
-				// Throttle polling
-				Thread.Sleep(150);
+					// Throttle polling
+					Thread.Sleep(150);
+				}
+				else
+				{
+					StopWorker();
+					RefreshDataGrid();
+				}
 			}
 		}
 
@@ -213,7 +222,7 @@ namespace WpfApp2
 		{
 			if (mouseHookPtr == IntPtr.Zero)
 			{
-				var hMod = Marshal.GetHINSTANCE(typeof(MainWindow).Module);
+				var hMod = System.Runtime.InteropServices.Marshal.GetHINSTANCE(typeof(MainWindow).Module);
 				mouseHookPtr = Win32Interop.SetWindowsHookEx(HookType.WH_MOUSE_LL, mouseHookCallback, hMod, 0);
 			}
 		}
@@ -226,10 +235,14 @@ namespace WpfApp2
 
 		private IntPtr MouseHookCallbackFunction(int code, IntPtr wParam, IntPtr lParam)
 		{
-			if (code >= 0 && mouseTrapRequested && selectedWindowHasFocus)
+			// Only handle WM_MOUSEMOVE messages
+			var isMouseMove = (wParam.ToInt32() == 0x0200); // #define WM_MOUSEMOVE 0x0200
+
+			// Check if message should be handled
+			if (code >= 0 && isMouseMove && mouseTrapRequested && selectedWindowHasFocus)
 			{
 				// Get pointer data
-				var mouseInfo = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
+				var mouseInfo = (MSLLHOOKSTRUCT)System.Runtime.InteropServices.Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
 				var point = mouseInfo.pt;
 
 				// Limit X
@@ -278,7 +291,8 @@ namespace WpfApp2
 
 		private void TrapMouse_Click(object sender, RoutedEventArgs e)
 		{
-			mouseTrapRequested = !mouseTrapRequested;
+			if (mouseTrapRequested) DisableMouseTrap();
+			else EnableMouseTrap();
 		}
 	}
 }
