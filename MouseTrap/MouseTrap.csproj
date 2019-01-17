@@ -64,6 +64,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Foundation\DetailedWindowItem.cs" />
+    <Compile Include="Foundation\MouseHookManager.cs" />
+    <Compile Include="Foundation\WindowItem.cs" />
+    <Compile Include="Foundation\WindowManager.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -91,7 +95,6 @@
   <ItemGroup>
     <Compile Include="Models\ModelWithNotification.cs" />
     <Compile Include="Models\WindowModel.cs" />
-    <Compile Include="Models\WindowInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

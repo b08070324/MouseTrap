@@ -30,10 +30,6 @@
 		private bool hasFocus = false;
 		public bool HasFocus { get => hasFocus; set => SetField(ref hasFocus, value); }
 
-		// Amount to reduce window area by, when constraining mouse
-		private int trapMargin = 8;
-		public int TrapMargin { get => trapMargin; set => SetField(ref trapMargin, value); }
-
 		// Trap button state
 		private bool mouseTrapRequested = false;
 		public bool MouseTrapRequested { get => mouseTrapRequested; set => SetField(ref mouseTrapRequested, value); }

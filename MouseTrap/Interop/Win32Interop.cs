@@ -80,6 +80,12 @@ namespace MouseTrap.Interop
 			return (exStyle.ToInt32() & (int)style) != 0;
 		}
 
+		public static bool WindowHasExStyle(IntPtr hWnd, WindowStylesEx style)
+		{
+			var exStyle = Win32Interop.GetWindowLongPtr(hWnd, (int)GWL.GWL_EXSTYLE);
+			return (exStyle.ToInt32() & (int)style) != 0;
+		}
+
 		public static string GetWindowText(IntPtr hWnd)
 		{
 			var len = GetWindowTextLength(hWnd);
