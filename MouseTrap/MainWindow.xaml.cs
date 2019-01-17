@@ -16,8 +16,8 @@ namespace MouseTrap
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		WindowManager windowManager = new WindowManager();
-		MouseHookManager mouseHookManager = new MouseHookManager();
+		// Store ref to application
+		private IMouseTrapApplication mouseTrapApplication;
 
 		// General app variables for binding etc
 		public WindowModel WindowModel { get; set; } = new WindowModel();
@@ -36,8 +36,8 @@ namespace MouseTrap
 		public MainWindow()
 		{
 			InitializeComponent();
-			Loaded += MainWindow_Loaded;
-			Closing += MainWindow_Closing;
+
+			mouseTrapApplication = Application.Current as IMouseTrapApplication;
 
 			// View model binding
 			WindowListViewSource.Source = observedWindowList;
@@ -48,31 +48,25 @@ namespace MouseTrap
 			worker.WorkerSupportsCancellation = true;
 			worker.DoWork += DoWork;
 			worker.RunWorkerCompleted += RunWorkerCompleted;
+
+			Loaded += MainWindow_Loaded;
+			Closing += MainWindow_Closing;
 		}
 
 		private void MainWindow_Loaded(object sender, RoutedEventArgs e)
 		{
-			// Global mouse hook
-			mouseHookManager.HookMouse();
-
-			// Update window grid
 			RefreshDataGrid();
 		}
 
 		private void MainWindow_Closing(object sender, CancelEventArgs e)
 		{
 			StopWorker();
-			mouseHookManager.UnhookMouse();
 		}
-
-		// View updates etc
 
 		private void RefreshDataGrid()
 		{
-			System.Diagnostics.Debug.WriteLine("Refresh");
-
 			// Get list
-			var list = windowManager.GetWindowList();
+			var list = mouseTrapApplication.GetWindowList();
 
 			// Update UI etc
 			uiContext.Send(x =>
@@ -84,15 +78,12 @@ namespace MouseTrap
 			, null);
 		}
 
-		// Threading
-
 		private void StartWorker()
 		{
 			if (!isPolling)
 			{
 				isPolling = true;
 				worker.RunWorkerAsync();
-				System.Diagnostics.Debug.WriteLine("Start polling");
 			}
 		}
 
@@ -112,20 +103,20 @@ namespace MouseTrap
 			else
 			{
 				// Update underlying data
-				if (windowManager.UpdateWindowDetails())
+				var updatedDetails = mouseTrapApplication.UpdateWindowDetails();
+				if (updatedDetails != null)
 				{
 					// Update view model
-					WindowModel.Title = windowManager.SelectedWindow.Title;
-					WindowModel.Process = windowManager.SelectedWindow.FullProcessName;
-					WindowModel.Top = windowManager.SelectedWindow.BoundingDimensions.Top;
-					WindowModel.Left = windowManager.SelectedWindow.BoundingDimensions.Left;
-					WindowModel.Width = (windowManager.SelectedWindow.BoundingDimensions.Right - windowManager.SelectedWindow.BoundingDimensions.Left);
-					WindowModel.Height = (windowManager.SelectedWindow.BoundingDimensions.Bottom - windowManager.SelectedWindow.BoundingDimensions.Top);
-					WindowModel.HasFocus = windowManager.SelectedWindow.IsInForeground;
+					WindowModel.Title = updatedDetails.Title;
+					WindowModel.Process = updatedDetails.Process;
+					WindowModel.Top = updatedDetails.Top;
+					WindowModel.Left = updatedDetails.Left;
+					WindowModel.Width = updatedDetails.Width;
+					WindowModel.Height = updatedDetails.Height;
+					WindowModel.HasFocus = updatedDetails.HasFocus;
 
 					// Update mouse hook
-					mouseHookManager.SetRegion(windowManager.SelectedWindow.BoundingDimensions);
-					mouseHookManager.TrapMouse = WindowModel.HasFocus && WindowModel.MouseTrapRequested;
+					mouseTrapApplication.SetMouseHookState(WindowModel.MouseTrapRequested);
 
 					// Throttle polling
 					Thread.Sleep(150);
@@ -145,13 +136,7 @@ namespace MouseTrap
 			{
 				worker.RunWorkerAsync();
 			}
-			else
-			{
-				System.Diagnostics.Debug.WriteLine("Stop polling");
-			}
 		}
-
-		// Event handlers
 
 		private void RefreshWindowList_Click(object sender, RoutedEventArgs e)
 		{
@@ -164,15 +149,15 @@ namespace MouseTrap
 			if (e.AddedCells.Count > 0)
 			{
 				var item = e.AddedCells.First().Item as WindowItem;
-				windowManager.SelectWindow(item);
+				mouseTrapApplication.SelectWindow(item);
 			}
 			else
 			{
-				windowManager.SelectWindow(null);
+				mouseTrapApplication.SelectWindow(null);
 			}
 
 			// Start (or continue) polling if window was selected
-			if (windowManager.SelectedWindow != null) StartWorker();
+			if (mouseTrapApplication.IsWindowSelected) StartWorker();
 			else StopWorker();
 		}
 

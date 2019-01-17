@@ -69,7 +69,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Foundation\DetailedWindowItem.cs" />
+    <Compile Include="Foundation\IMouseTrapApplication.cs" />
     <Compile Include="Foundation\MouseHookManager.cs" />
+    <Compile Include="Foundation\UpdatedWindowDetails.cs" />
     <Compile Include="Foundation\WindowItem.cs" />
     <Compile Include="Foundation\WindowManager.cs" />
     <Page Include="MainWindow.xaml">
