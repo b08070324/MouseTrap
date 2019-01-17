@@ -1,0 +1,36 @@
+title Get window details
+
+activate UI
+
+UI->System:GetWindowDetails(window)
+activate System
+
+group cached [expensive call, doesn't change]
+System->Win32:OpenProcess(QueryLimitedInformation, procId)
+activate Win32
+Win32-->System:limitedHandle
+System->Win32:QueryFullProcessImageName(limitedHandle)
+Win32-->System:fullProcessName
+System->Win32:CloseHandle(limitedHandle)
+end
+space
+
+System->Win32:GetWindowText(handle)
+Win32-->System:winTitle
+space
+
+System->Win32:GetWindowRect(handle)
+Win32-->System:rect
+space
+
+System->Win32:GetWindowLongPtr(GWL_EXSTYLE)
+Win32-->System:exStyle
+space
+
+System->Win32:GetForegroundWindow()
+Win32-->System:fgHandle
+
+deactivate Win32
+
+System-->UI:windowDetails
+deactivate System

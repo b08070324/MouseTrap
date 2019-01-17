@@ -1,0 +1,30 @@
+title Updating datagrid
+
+activate UI
+UI->System:GetWindowList()
+
+activate System
+System->Win32:EnumWindows()
+
+activate Win32
+loop
+Win32->System:WindowEnumCallback()
+activate System
+space
+System->Win32:GetWindowThreadProcessId()
+Win32-->System:procId
+space
+System->Win32:GetWindowText()
+Win32-->System:winTitle
+space
+System-->Win32:true
+deactivate System
+end
+space
+deactivate Win32
+
+System-->UI:windowList
+deactivate System
+
+UI->ObservedList:SetItems(windowList)
+activate ObservedList
