@@ -41,7 +41,7 @@ namespace MouseTrap
 				return new UpdatedWindowDetails
 				{
 					Title = windowManager.SelectedWindow.Title,
-					Process = windowManager.SelectedWindow.FullProcessName,
+					Process = windowManager.SelectedWindow.ProcessName,
 					Top = windowManager.SelectedWindow.BoundingDimensions.Top,
 					Left = windowManager.SelectedWindow.BoundingDimensions.Left,
 					Width = (windowManager.SelectedWindow.BoundingDimensions.Right - windowManager.SelectedWindow.BoundingDimensions.Left),

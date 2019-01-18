@@ -5,7 +5,6 @@ namespace MouseTrap.Foundation
 	// Extended data for a specific window
 	public class DetailedWindowItem : WindowItem
 	{
-		public string FullProcessName { get; set; }
 		public Rect BoundingDimensions { get; set; }
 		public bool IsInForeground { get; set; }
 

@@ -35,6 +35,7 @@ namespace MouseTrap.Foundation
 		{
 			var list = new List<WindowItem>();
 			var currentProcessId = Process.GetCurrentProcess().Id;
+			var sb = new StringBuilder(1024);
 
 			Win32Interop.EnumWindows((hWnd, lParam) =>
 			{
@@ -51,11 +52,8 @@ namespace MouseTrap.Foundation
 				if (Win32Interop.WindowHasExStyle(hWnd, WindowStylesEx.WS_EX_TOOLWINDOW | WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP)) return true;
 
 				// Name of executable
-				string processName;
-				using (var process = Process.GetProcessById((int)procId))
-				{
-					processName = process.ProcessName;
-				}
+				GetFullProcessName(sb, (int)procId);
+				string processName = sb.ToString();
 
 				// Data - Get window title
 				var title = Win32Interop.GetWindowText(hWnd);
@@ -76,9 +74,6 @@ namespace MouseTrap.Foundation
 			// Create details from item
 			var detailedItem = new DetailedWindowItem(windowItem);
 
-			// Get process path
-			GetFullProcessName(detailedItem);
-
 			// Get remaining details
 			UpdateWindowDetails(detailedItem);
 
@@ -86,22 +81,24 @@ namespace MouseTrap.Foundation
 			return detailedItem;
 		}
 
-		// Gets full path to process exe, expensive to perform
-		private void GetFullProcessName(DetailedWindowItem detailedItem)
+		private void GetFullProcessName(StringBuilder sb, int processId)
 		{
-			// Get limited info handle
-			IntPtr limitedHandle = Win32Interop.OpenProcess(ProcessAccessFlags.QueryLimitedInformation, false, (int)detailedItem.ProcessId);
-
-			// Full path to executable
-			var sb = new StringBuilder(1024);
+			sb.Clear();
 			uint len = (uint)sb.Capacity + 1;
-			if (Win32Interop.QueryFullProcessImageName(limitedHandle, 0, sb, ref len))
-			{
-				detailedItem.FullProcessName = sb.ToString();
-			}
+			IntPtr limitedHandle = IntPtr.Zero;
 
-			// Close handle
-			Win32Interop.CloseHandle(limitedHandle);
+			try
+			{
+				limitedHandle = Win32Interop.OpenProcess(ProcessAccessFlags.QueryLimitedInformation, false, processId);
+				Win32Interop.QueryFullProcessImageName(limitedHandle, 0, sb, ref len);
+			}
+			catch(Exception)
+			{
+			}
+			finally
+			{
+				if (limitedHandle != IntPtr.Zero) Win32Interop.CloseHandle(limitedHandle);
+			}
 		}
 
 		// Updates Title, BoundingDimensions and IsInForeground
