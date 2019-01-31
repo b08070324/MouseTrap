@@ -54,7 +54,7 @@ namespace MouseTrap.ViewModels
 			}
 
 			// Set visual display of validity
-			IsFilenameValid = (_mediator.TargetWindow?.IsPathValid).GetValueOrDefault(false);
+			IsFilenameValid = _mediator.TargetWindow?.IsPathValid ?? false;
 		}
 
 		public string Filename
