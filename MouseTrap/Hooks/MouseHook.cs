@@ -1,47 +1,49 @@
 ﻿using MouseTrap.Interop;
 using System;
 
-namespace MouseTrap.Foundation
+namespace MouseTrap.Hooks
 {
-	public class MouseHookManager
+	public class MouseHook : IDisposable
 	{
-		public bool TrapMouse { get; set; }
-
+		private bool disposed = false;
 		private readonly HookProc mouseHookCallback;
 		private IntPtr mouseHookPtr;
-		private Rect margin;
-		private Rect region;
-		private Rect boundaries;
+		private Win32Rect margin;
+		private Win32Rect region;
+		private Win32Rect boundaries;
 
-		public MouseHookManager()
+		public MouseHook()
 		{
 			mouseHookCallback = new HookProc(MouseHookCallbackFunction);
 			mouseHookPtr = IntPtr.Zero;
-			margin = new Rect { Bottom = -8, Left = 8, Right = -8, Top = 8 };
-			region = new Rect();
-			boundaries = new Rect();
+			margin = new Win32Rect { Bottom = 0, Left = 0, Right = 0, Top = 0 };
+			region = new Win32Rect();
+			boundaries = new Win32Rect();
 		}
 
-		public void SetRegion(Rect dimensions)
+		public bool TrapMouse { get; set; }
+
+		public void SetRegion(Win32Rect dimensions)
 		{
 			UpdateRect(ref region, ref dimensions);
 		}
 
-		public void SetMargin(Rect dimensions)
+		public void SetMargin(Win32Rect dimensions)
 		{
 			UpdateRect(ref margin, ref dimensions);
 		}
 
-		private void UpdateRect(ref Rect target, ref Rect source)
+		private void UpdateRect(ref Win32Rect target, ref Win32Rect source)
 		{
 			target.Bottom = source.Bottom;
 			target.Left = source.Left;
 			target.Right = source.Right;
 			target.Top = source.Top;
 			boundaries = region + margin;
+			return;
 		}
 
-		public void HookMouse()
+		public void StartHook()
 		{
 			if (mouseHookPtr == IntPtr.Zero)
 			{
@@ -50,10 +52,20 @@ namespace MouseTrap.Foundation
 			}
 		}
 
-		public void UnhookMouse()
+		public void StopHook()
 		{
 			if (mouseHookPtr != IntPtr.Zero) Win32Interop.UnhookWindowsHookEx(mouseHookPtr);
 			mouseHookPtr = IntPtr.Zero;
+		}
+
+		private bool BoundaryIsValid
+		{
+			get
+			{
+				var width = boundaries.Right - boundaries.Left;
+				var height = boundaries.Bottom - boundaries.Top;
+				return (width > 0) && (height > 0);
+			}
 		}
 
 		private IntPtr MouseHookCallbackFunction(int code, IntPtr wParam, IntPtr lParam)
@@ -62,7 +74,7 @@ namespace MouseTrap.Foundation
 			var isMouseMove = (wParam.ToInt32() == 0x0200); // #define WM_MOUSEMOVE 0x0200
 
 			// Check if message should be handled
-			if (code >= 0 && isMouseMove && TrapMouse)
+			if (code >= 0 && isMouseMove && TrapMouse && BoundaryIsValid)
 			{
 				// Get pointer data
 				var mouseInfo = (MSLLHOOKSTRUCT)System.Runtime.InteropServices.Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
@@ -85,6 +97,36 @@ namespace MouseTrap.Foundation
 
 			// Skip
 			return Win32Interop.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
+		}
+
+		// IDisposable
+		~MouseHook()
+		{
+			Dispose(false);
+		}
+
+		// IDisposable
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		// IDisposable
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed) return;
+
+			if (disposing)
+			{
+				// Free any other managed objects here.
+			}
+
+			// Free any unmanaged objects here.
+			StopHook();
+
+			// Done
+			disposed = true;
 		}
 	}
 }

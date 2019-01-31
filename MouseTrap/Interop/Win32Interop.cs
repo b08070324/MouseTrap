@@ -8,25 +8,16 @@ namespace MouseTrap.Interop
 
 	public delegate IntPtr HookProc(int code, IntPtr wParam, IntPtr lParam);
 
+	public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, 
+		IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
 	public static class Win32Interop
 	{
 		[DllImport("user32.dll")]
-		public static extern IntPtr GetForegroundWindow();
-
-		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-		public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-		public static extern int GetWindowTextLength(IntPtr hWnd);
-
-		[DllImport("user32.dll", SetLastError = true)]
-		public static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
-
-		[DllImport("user32.dll")]
 		public static extern bool EnumWindows(WindowEnumCallback lpEnumFunc, int lParam);
 
-		[DllImport("user32.dll")]
-		public static extern bool IsWindow(IntPtr hWnd);
+		[DllImport("user32.dll", SetLastError = true)]
+		public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
 		[DllImport("user32.dll")]
 		public static extern bool IsWindowVisible(IntPtr hWnd);
@@ -40,28 +31,36 @@ namespace MouseTrap.Interop
 		[DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
 		private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
 
-		// This static method is required because Win32 does not support
-		// GetWindowLongPtr directly
-		public static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex)
-		{
-			if (IntPtr.Size == 8) return GetWindowLongPtr64(hWnd, nIndex);
-			else return GetWindowLongPtr32(hWnd, nIndex);
-		}
-
-		[DllImport("user32.dll", SetLastError = true)]
-		internal static extern bool GetWindowPlacement(IntPtr hWnd, out WindowPlacement windowPlacement);
-
-		[DllImport("user32.dll", SetLastError = true)]
-		public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
-
 		[DllImport("kernel32.dll")]
 		public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
+		[DllImport("Kernel32.dll")]
+		public static extern bool QueryFullProcessImageName([In] IntPtr hProcess, [In] uint dwFlags, [Out] StringBuilder lpExeName, [In, Out] ref uint lpdwSize);
 
 		[DllImport("kernel32.dll", SetLastError = true)]
 		public static extern bool CloseHandle(IntPtr hHandle);
 
-		[DllImport("Kernel32.dll")]
-		public static extern bool QueryFullProcessImageName([In] IntPtr hProcess, [In] uint dwFlags, [Out] StringBuilder lpExeName, [In, Out] ref uint lpdwSize);
+		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+		public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+		public static extern int GetWindowTextLength(IntPtr hWnd);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		public static extern bool GetWindowRect(IntPtr hWnd, out Win32Rect lpRect);
+
+		[DllImport("user32.dll")]
+		public static extern bool IsWindow(IntPtr hWnd);
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, 
+			IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+
+		[DllImport("user32.dll")]
+		public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+		[DllImport("user32.dll")]
+		public static extern bool SetCursorPos(int X, int Y);
 
 		[DllImport("user32.dll", SetLastError = true)]
 		public static extern IntPtr SetWindowsHookEx(HookType hookType, HookProc lpfn, IntPtr hMod, uint dwThreadId);
@@ -72,18 +71,44 @@ namespace MouseTrap.Interop
 		[DllImport("user32.dll", SetLastError = true)]
 		public static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
-		[DllImport("user32.dll")]
-		public static extern bool SetCursorPos(int X, int Y);
-
-		public static bool HasExStyle(IntPtr exStyle, WindowStylesEx style)
+		// This static method is required because Win32 does not support
+		// GetWindowLongPtr directly
+		public static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex)
 		{
-			return (exStyle.ToInt32() & (int)style) != 0;
+			if (IntPtr.Size == 8) return GetWindowLongPtr64(hWnd, nIndex);
+			else return GetWindowLongPtr32(hWnd, nIndex);
 		}
 
-		public static bool WindowHasExStyle(IntPtr hWnd, WindowStylesEx style)
+		public static bool WindowHasStyle(IntPtr hWnd, WindowStyles requiredStyle)
+		{
+			var style = Win32Interop.GetWindowLongPtr(hWnd, (int)GWL.GWL_STYLE);
+			return (style.ToInt32() & (int)requiredStyle) != 0;
+		}
+
+		public static bool WindowHasExStyle(IntPtr hWnd, WindowStylesEx requiredStyle)
 		{
 			var exStyle = Win32Interop.GetWindowLongPtr(hWnd, (int)GWL.GWL_EXSTYLE);
-			return (exStyle.ToInt32() & (int)style) != 0;
+			return (exStyle.ToInt32() & (int)requiredStyle) != 0;
+		}
+
+		public static void GetFullProcessName(StringBuilder sb, int processId)
+		{
+			sb.Clear();
+			uint len = (uint)sb.Capacity + 1;
+			IntPtr limitedHandle = IntPtr.Zero;
+
+			try
+			{
+				limitedHandle = Win32Interop.OpenProcess(ProcessAccessFlags.QueryLimitedInformation, false, processId);
+				Win32Interop.QueryFullProcessImageName(limitedHandle, 0, sb, ref len);
+			}
+			catch (Exception)
+			{
+			}
+			finally
+			{
+				if (limitedHandle != IntPtr.Zero) Win32Interop.CloseHandle(limitedHandle);
+			}
 		}
 
 		public static string GetWindowText(IntPtr hWnd)

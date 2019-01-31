@@ -1,184 +1,89 @@
 ﻿using System.ComponentModel;
-using System.Linq;
-using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-
 using MouseTrap.Foundation;
 using MouseTrap.Models;
-using MouseTrap.Data;
+using MouseTrap.ViewModels;
 
 namespace MouseTrap
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow : Window
+	public partial class MainWindow : Window, INotifyPropertyChanged
 	{
-		// Store ref to application
-		private IMouseTrapApplication mouseTrapApplication;
+		// View state properties
+		public ToolBarViewModel ToolBarViewModel { get; set; }
+		public BaseViewModel CurrentViewModel { get; set; }
+		public event PropertyChangedEventHandler PropertyChanged;
 
-		// General app variables for binding etc
-		public WindowModel WindowModel { get; set; } = new WindowModel();
-		private string searchText = string.Empty;
+		// View models
+		private WindowListViewModel windowListModel;
+		private FindProgramViewModel findProgramModel;
+		private LockWindowViewModel lockWindowModel;
 
-		// Datagrid binding
-		private BatchedObservableCollection<WindowItem> observedWindowList = new BatchedObservableCollection<WindowItem>();
-		public CollectionViewSource WindowListViewSource { get; set; } = new CollectionViewSource();
-
-		// Threading
-		private SynchronizationContext uiContext = SynchronizationContext.Current;
-		private readonly BackgroundWorker worker;
-		public bool isPolling;
+		IMediator _mediator;
 
 		// Constructor
 		public MainWindow()
 		{
 			InitializeComponent();
-
-			mouseTrapApplication = Application.Current as IMouseTrapApplication;
-
-			// View model binding
-			WindowListViewSource.Source = observedWindowList;
-			WindowListViewSource.Filter += CollectionViewSource_Filter;
-
-			// Update thread
-			worker = new BackgroundWorker();
-			worker.WorkerSupportsCancellation = true;
-			worker.DoWork += DoWork;
-			worker.RunWorkerCompleted += RunWorkerCompleted;
-
 			Loaded += MainWindow_Loaded;
 			Closing += MainWindow_Closing;
 		}
 
 		private void MainWindow_Loaded(object sender, RoutedEventArgs e)
 		{
-			RefreshDataGrid();
+			// Get mediator
+			_mediator = ConcreteMediatorFactory.GetMediator();
+			_mediator.OnViewChanged += OnViewChanged;
+
+			// Create view models
+			ToolBarViewModel = new ToolBarViewModel(_mediator);
+			windowListModel = new WindowListViewModel(_mediator);
+			findProgramModel = new FindProgramViewModel(_mediator);
+			lockWindowModel = new LockWindowViewModel(_mediator);
+
+			// Bind datacontext
+			DataContext = this;
+
+			// Show main view
+			_mediator.RefreshWindowList();
+			SetCurrentView(_mediator.CurrentView);
 		}
 
 		private void MainWindow_Closing(object sender, CancelEventArgs e)
 		{
-			StopWorker();
+			_mediator.AppClosing();
 		}
 
-		private void RefreshDataGrid()
+		// Change the current view based on the selected view model type
+		public void SetCurrentView(ViewType currentView)
 		{
-			// Get list
-			var list = mouseTrapApplication.GetWindowList();
+			BaseViewModel newView = null;
 
-			// Update UI etc
-			uiContext.Send(x =>
+			switch (currentView)
 			{
-				WindowModel.MouseTrapRequested = false;
-				WindowModel.SelectedIndex = -1;
-				observedWindowList.SetItems(list);
-			}
-			, null);
-		}
-
-		private void StartWorker()
-		{
-			if (!isPolling)
-			{
-				isPolling = true;
-				worker.RunWorkerAsync();
-			}
-		}
-
-		private void StopWorker()
-		{
-			isPolling = false;
-			worker.CancelAsync();
-		}
-
-		// This run in worker thread
-		private void DoWork(object sender, DoWorkEventArgs e)
-		{
-			if (worker.CancellationPending)
-			{
-				e.Cancel = true;
-			}
-			else
-			{
-				// Update underlying data
-				var updatedDetails = mouseTrapApplication.UpdateWindowDetails();
-				if (updatedDetails != null)
-				{
-					// Update view model
-					WindowModel.Title = updatedDetails.Title;
-					WindowModel.Process = updatedDetails.Process;
-					WindowModel.Top = updatedDetails.Top;
-					WindowModel.Left = updatedDetails.Left;
-					WindowModel.Width = updatedDetails.Width;
-					WindowModel.Height = updatedDetails.Height;
-					WindowModel.HasFocus = updatedDetails.HasFocus;
-
-					// Update mouse hook
-					mouseTrapApplication.SetMouseHookState(WindowModel.MouseTrapRequested);
-
-					// Throttle polling
-					Thread.Sleep(150);
-				}
-				else
-				{
-					StopWorker();
-					RefreshDataGrid();
-				}
-			}
-		}
-
-		// This runs in UI thread
-		private void RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-		{
-			if (isPolling)
-			{
-				worker.RunWorkerAsync();
-			}
-		}
-
-		private void RefreshWindowList_Click(object sender, RoutedEventArgs e)
-		{
-			RefreshDataGrid();
-		}
-
-		private void OutputGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
-		{
-			// Get selected window
-			if (e.AddedCells.Count > 0)
-			{
-				var item = e.AddedCells.First().Item as WindowItem;
-				mouseTrapApplication.SelectWindow(item);
-			}
-			else
-			{
-				mouseTrapApplication.SelectWindow(null);
+				case ViewType.WindowList:
+					newView = windowListModel;
+					break;
+				case ViewType.FindProgram:
+					newView = findProgramModel;
+					break;
+				case ViewType.LockWindow:
+					newView = lockWindowModel;
+					break;
+				default:
+					break;
 			}
 
-			// Start (or continue) polling if window was selected
-			if (mouseTrapApplication.IsWindowSelected) StartWorker();
-			else StopWorker();
+			if (newView == null || newView == CurrentViewModel) return;
+			CurrentViewModel = newView;
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentViewModel"));
 		}
 
-		private void ProcessNameInput_TextChanged(object sender, TextChangedEventArgs e)
+		public void OnViewChanged()
 		{
-			var box = e.Source as TextBox;
-			searchText = box.Text;
-			WindowListViewSource.View.Refresh();
-		}
-
-		private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
-		{
-			var item = e.Item as WindowItem;
-			var titleMatches = item.Title.ToLower().Contains(searchText);
-			var processMatches = item.ProcessName.ToLower().Contains(searchText);
-			e.Accepted = titleMatches || processMatches;
-		}
-
-		private void TrapMouse_Click(object sender, RoutedEventArgs e)
-		{
-			WindowModel.MouseTrapRequested = !WindowModel.MouseTrapRequested;
+			SetCurrentView(_mediator.CurrentView);
 		}
 	}
 }

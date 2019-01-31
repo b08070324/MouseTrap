@@ -1,218 +1,52 @@
 ﻿<Window x:Class="MouseTrap.MainWindow"
-		Icon="Resources/TransAppIcon.ico"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:system="clr-namespace:System;assembly=mscorlib"
-		xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=PresentationFramework"
-		xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
-        xmlns:local="clr-namespace:MouseTrap"
-		xmlns:models="clr-namespace:MouseTrap.Models"
-        mc:Ignorable="d"
-		d:DataContext="{Binding Source={StaticResource WindowModel1}}"
-		DataContext="{Binding RelativeSource={RelativeSource Self}, Path=WindowModel}"
-        Title="Mouse Trap" Height="375" MinHeight="375" Width="650" MinWidth="650" WindowStartupLocation="CenterScreen">
+		Icon="Resources/AppIcon.ico"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:models="clr-namespace:MouseTrap.ViewModels"
+		xmlns:dmodels="clr-namespace:MouseTrap.DesignModels"
+		xmlns:views="clr-namespace:MouseTrap.Views"
+		mc:Ignorable="d"
+		d:DataContext="{d:DesignInstance dmodels:MainWindowDesignModel, IsDesignTimeCreatable=True}"
+		Title="Mouse Trap" ResizeMode="CanMinimize" Width="500" Height="350" WindowStartupLocation="CenterScreen" MinWidth="500" MinHeight="350" IsTabStop="False">
 	<Window.Resources>
-		<models:WindowModel x:Key="WindowModel1" 
-			Title="Example window title" 
-			Process="D:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.exe"
-			HasFocus="True"
-			Top="-8" Left="-8" Width="1920" Height="1080" />
-
-		<SolidColorBrush x:Key="Button.Activated.Background" Color="#FFCDFFC1"/>
-		<SolidColorBrush x:Key="Button.Activated.Border" Color="#FF5D9E4F"/>
-		<SolidColorBrush x:Key="Button.Deactivated.Background" Color="#FFDDDDDD"/>
-		<SolidColorBrush x:Key="Button.Deactivated.Border" Color="#FF707070"/>
-		<SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
-		<SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
-
-		<Style x:Key="TrimmedText" TargetType="{x:Type TextBlock}">
-			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-		</Style>
-
-		<Style x:Key="trapButton" TargetType="Button">
-			<Setter Property="Background" Value="{StaticResource Button.Deactivated.Background}" />
-			<Setter Property="BorderBrush" Value="{StaticResource Button.Deactivated.Border}" />
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="{x:Type Button}">
-						<Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-						</Border>
-						<ControlTemplate.Triggers>
-							<Trigger Property="IsMouseOver" Value="true">
-								<Setter Property="Background" Value="{StaticResource Button.MouseOver.Background}"/>
-								<Setter Property="BorderBrush" Value="{StaticResource Button.MouseOver.Border}"/>
-							</Trigger>
-						</ControlTemplate.Triggers>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-			<Style.Triggers>
-				<DataTrigger Binding="{Binding MouseTrapRequested}" Value="True">
-					<Setter Property="Background" Value="{StaticResource Button.Activated.Background}" />
-					<Setter Property="BorderBrush" Value="{StaticResource Button.Activated.Border}" />
-				</DataTrigger>
-			</Style.Triggers>
-		</Style>
-
-		<Style x:Key="hasFocus" TargetType="{x:Type emoji:TextBlock}">
-			<Setter Property="FontSize" Value="18" />
-			<Setter Property="Visibility" Value="Hidden" />
-			<Style.Triggers>
-				<DataTrigger Binding="{Binding HasFocus}" Value="True">
-					<Setter Property="Visibility" Value="Visible" />
-				</DataTrigger>
-			</Style.Triggers>
-		</Style>
-
-		<Style x:Key="leftSide" TargetType="{x:Type Grid}">
-			<Setter Property="Grid.ColumnSpan" Value="1" />
-			<Style.Triggers>
-				<MultiDataTrigger>
-					<MultiDataTrigger.Conditions>
-						<Condition Value="-1" Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}"/>
-						<Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self}, Path=(componentModel:DesignerProperties.IsInDesignMode)}"/>
-					</MultiDataTrigger.Conditions>
-					<MultiDataTrigger.Setters>
-						<Setter Property="Grid.ColumnSpan" Value="2" />
-					</MultiDataTrigger.Setters>
-				</MultiDataTrigger>
-			</Style.Triggers>
-		</Style>
-		
-		<Style x:Key="rightSide" TargetType="{x:Type Grid}">
-			<Setter Property="Visibility" Value="Visible" />
-			<Style.Triggers>
-				<MultiDataTrigger>
-					<MultiDataTrigger.Conditions>
-						<Condition Value="-1" Binding="{Binding Path=SelectedIndex, ElementName=outputGrid}"/>
-						<Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self}, Path=(componentModel:DesignerProperties.IsInDesignMode)}"/>
-					</MultiDataTrigger.Conditions>
-					<MultiDataTrigger.Setters>
-						<Setter Property="Visibility" Value="Hidden" />
-					</MultiDataTrigger.Setters>
-				</MultiDataTrigger>
-			</Style.Triggers>
-		</Style>
-
-		<Style x:Key="windowGrid" TargetType="{x:Type DataGrid}">
-			<Setter Property="HorizontalGridLinesBrush" Value="{x:Null}" />
-			<Setter Property="VerticalGridLinesBrush" Value="{x:Null}" />
-			<Setter Property="Background" Value="{x:Null}" />
-			<Setter Property="IsReadOnly" Value="True" />
-			<Setter Property="AutoGenerateColumns" Value="False" />
-			<Setter Property="SelectionMode" Value="Single" />
-			<Setter Property="HeadersVisibility" Value="Column" />
-			<Setter Property="Margin" Value="0,0,0,8" />
-		</Style>
-
-		<Style x:Key="detailsTitle" TargetType="{x:Type TextBlock}">
-			<Setter Property="FontSize" Value="20" />
-			<Setter Property="MaxHeight" Value="60" />
-			<Setter Property="TextWrapping" Value="Wrap" />
-			<Setter Property="TextTrimming" Value="CharacterEllipsis" />
-		</Style>
-
-		<Style x:Key="detailsProcess" TargetType="{x:Type TextBlock}">
-			<Setter Property="FontSize" Value="12" />
-			<Setter Property="TextWrapping" Value="Wrap" />
-			<Setter Property="TextTrimming" Value="CharacterEllipsis" />
-		</Style>
-
-		<Style x:Key="textButton" TargetType="{x:Type TextBlock}">
-			<Setter Property="FontSize" Value="18" />
-		</Style>
-
-		<Style TargetType="TextBox">
-			<Setter Property="FontSize" Value="18" />
-		</Style>
+		<DataTemplate DataType="{x:Type models:ToolBarViewModel}">
+			<views:AppToolBar IsTabStop="False" />
+		</DataTemplate>
+		<DataTemplate DataType="{x:Type models:WindowListViewModel}">
+			<views:WindowListView IsTabStop="False" />
+		</DataTemplate>
+		<DataTemplate DataType="{x:Type models:FindProgramViewModel}">
+			<views:FindProgramView IsTabStop="False" />
+		</DataTemplate>
+		<DataTemplate DataType="{x:Type models:LockWindowViewModel}">
+			<views:LockWindowView IsTabStop="False" />
+		</DataTemplate>
 	</Window.Resources>
-
-	<Grid Margin="16">
-
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="300"/>
-		</Grid.ColumnDefinitions>
-
-		<!-- Left side -->
-		<Grid Grid.Column="0" Style="{DynamicResource leftSide}">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="*" />
-				<RowDefinition Height="Auto" />
-			</Grid.RowDefinitions>
-
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto"/>
-				<ColumnDefinition Width="*"/>
-			</Grid.ColumnDefinitions>
-
-			<DataGrid Grid.ColumnSpan="2" Name="outputGrid" Style="{StaticResource windowGrid}" SelectedCellsChanged="OutputGrid_SelectedCellsChanged" SelectedIndex="{Binding SelectedIndex}">
-				<DataGrid.ItemsSource>
-					<Binding Path="WindowListViewSource.View" RelativeSource="{RelativeSource AncestorType={x:Type Window}}" />
-				</DataGrid.ItemsSource>
-				<DataGrid.Columns>
-					<DataGridTextColumn Header="Title" Binding="{Binding Title}" ElementStyle="{StaticResource TrimmedText}" Width="*" />
-					<DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="50" />
-				</DataGrid.Columns>
-			</DataGrid>
-
-			<Button Grid.Row="1" Click="RefreshWindowList_Click" ToolTip="Refresh program list">
-				<Button.ContentTemplate>
-					<DataTemplate>
-						<StackPanel Orientation="Horizontal" Margin="4">
-							<emoji:TextBlock Text="♻️" VerticalAlignment="Center" Style="{StaticResource textButton}" />
-						</StackPanel>
-					</DataTemplate>
-				</Button.ContentTemplate>
-			</Button>
-
-			<TextBox Grid.Row="1" Grid.Column="2" Margin="8,0,0,0" VerticalContentAlignment="Center" ToolTip="Search program list" TextChanged="ProcessNameInput_TextChanged" />
-		</Grid>
-
-		<!-- Right side -->
-		<Grid Grid.Column="1" Margin="16,0,0,0" Style="{DynamicResource rightSide}">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="90" />
-				<RowDefinition Height="110" />
-				<RowDefinition Height="*" />
-			</Grid.RowDefinitions>
-
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-			</Grid.ColumnDefinitions>
-
-			<StackPanel Orientation="Vertical">
-				<emoji:TextBlock Style="{StaticResource detailsTitle}" Text="{Binding Title}" />
-				<TextBlock Style="{StaticResource detailsProcess}" Text="{Binding Process}" />
-			</StackPanel>
-
-			<Grid Grid.Row="1" VerticalAlignment="Center">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="56" />
-					<RowDefinition Height="Auto" />
-				</Grid.RowDefinitions>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="74" />
-					<ColumnDefinition Width="*"/>
-				</Grid.ColumnDefinitions>
-				<TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Text="{Binding Top}" />
-				<TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Text="{Binding Left}" />
-				<Border Grid.Row="1" Grid.Column="1" BorderThickness="1" Margin="4" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
-				<TextBlock Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding Height}" />
-				<TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Text="{Binding Width}" />
-			</Grid>
-
-			<emoji:TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="👁️" Style="{DynamicResource hasFocus}" />
-
-			<Button Grid.Row="2" VerticalAlignment="Top" Width="48" Height="48" ToolTip="Lock mouse to window" Click="TrapMouse_Click" Style="{DynamicResource trapButton}">
-				<emoji:TextBlock Text="🔒" Style="{StaticResource textButton}" VerticalAlignment="Center" HorizontalAlignment="Center" />
-			</Button>
-		</Grid>
-
-	</Grid>
+	<DockPanel Margin="8">
+		<ContentControl Content="{Binding ToolBarViewModel}" DockPanel.Dock="Top" Margin="0,0,0,8" IsTabStop="False" />
+		<ContentControl>
+			<ContentControl.Style>
+				<Style TargetType="ContentControl">
+					<Setter Property="Content" Value="{Binding CurrentViewModel}" />
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Content}" Value="{x:Null}">
+							<Setter Property="ContentControl.Template">
+								<Setter.Value>
+									<ControlTemplate>
+										<TextBlock Text="⏳" 
+														 Margin="0,0,0,24"
+														 FontSize="150" 
+														 HorizontalAlignment="Center" 
+														 VerticalAlignment="Center"/>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</ContentControl.Style>
+		</ContentControl>
+	</DockPanel>
 </Window>

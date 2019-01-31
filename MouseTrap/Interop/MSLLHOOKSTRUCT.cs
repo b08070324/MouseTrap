@@ -7,7 +7,7 @@ namespace MouseTrap.Interop
 	public struct MSLLHOOKSTRUCT
 	{
 		public Point pt;
-		public int mouseData; // be careful, this must be ints, not uints (was wrong before I changed it...). regards, cmew.
+		public int mouseData;
 		public int flags;
 		public int time;
 		public UIntPtr dwExtraInfo;

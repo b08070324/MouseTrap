@@ -3,13 +3,13 @@
 namespace MouseTrap.Interop
 {
 	[StructLayout(LayoutKind.Sequential)]
-	public struct Rect
+	public struct Win32Rect
 	{
 		public int Left, Top, Right, Bottom;
 
-		public static Rect operator +(Rect a, Rect b)
+		public static Win32Rect operator +(Win32Rect a, Win32Rect b)
 		{
-			return new Rect
+			return new Win32Rect
 			{
 				Bottom = a.Bottom + b.Bottom,
 				Left = a.Left + b.Left,
@@ -20,7 +20,7 @@ namespace MouseTrap.Interop
 
 		public override string ToString()
 		{
-			return string.Format("{0} {1} {2} {3}", Left, Top, Right, Bottom);
+			return $"{Left}, {Top}, {Right}, {Bottom}";
 		}
 	}
 }

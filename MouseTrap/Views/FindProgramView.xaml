@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="MouseTrap.Views.FindProgramView"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+		xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"	
+		xmlns:dmodels="clr-namespace:MouseTrap.DesignModels"
+		mc:Ignorable="d" 
+		d:DataContext="{d:DesignInstance dmodels:FindProgramDesignModel, IsDesignTimeCreatable=True}"
+		d:DesignHeight="261" d:DesignWidth="478" Background="{DynamicResource Main.Background}">
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="/MouseTrap;component/Colours.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</UserControl.Resources>
+
+	<Grid Margin="8,0,8,16">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="32" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="8" />
+			<ColumnDefinition Width="42" />
+		</Grid.ColumnDefinitions>
+
+		<TextBlock Grid.Row="0" Grid.ColumnSpan="3" VerticalAlignment="Center">
+			Path to executable:
+		</TextBlock>
+
+		<TextBox Grid.Row="1" Grid.Column="0" Width="Auto" Padding="4,0" FontSize="14" 
+				 PreviewDragOver="TextBox_PreviewDragOver"
+				 PreviewDragEnter="TextBox_PreviewDragOver"
+				 PreviewDrop="TextBox_PreviewDrop" 
+				 VerticalContentAlignment="Center" Text="{Binding Filename, UpdateSourceTrigger=PropertyChanged}" />
+
+		<Button Grid.Row="1" Grid.Column="2" Command="{Binding FindFileCommand}">
+			<emoji:TextBlock Text="📂" FontSize="20" Padding="4" />
+		</Button>
+
+		<emoji:TextBlock Grid.Row="2" Grid.ColumnSpan="3" FontSize="48" VerticalAlignment="Center" HorizontalAlignment="Center">
+			<emoji:TextBlock.Style>
+				<Style TargetType="emoji:TextBlock">
+					<Setter Property="Text" Value="❌" />
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding IsFilenameValid}" Value="True">
+							<Setter Property="Text" Value="✔" />
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</emoji:TextBlock.Style>
+		</emoji:TextBlock>
+
+	</Grid>
+</UserControl>
