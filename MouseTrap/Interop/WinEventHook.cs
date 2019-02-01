@@ -2,7 +2,7 @@
 
 namespace MouseTrap.Interop
 {
-	public class WinEventHook : IDisposable
+	public abstract class WinEventHook : IDisposable
 	{
 		// Ensure delegate is not collected prematurely
 		private readonly WinEventDelegate _winEventDelegate;
@@ -13,7 +13,7 @@ namespace MouseTrap.Interop
 		private uint _threadId;
 
 		// Event handler
-		public event EventHandler<WinEventHookEventArgs> EventHandler;
+		protected event EventHandler<WinEventHookEventArgs> WinEventHookEvent;
 
 		// Constructor
 		public WinEventHook()
@@ -22,7 +22,7 @@ namespace MouseTrap.Interop
 			_winEventDelegate = new WinEventDelegate(WinEventCallback);
 		}
 
-		public void StartHook(WinEventConstant winEventMin, WinEventConstant winEventMax = 0, IntPtr processHandle = default(IntPtr))
+		protected void StartWinEventHook(WinEventConstant winEventMin, WinEventConstant winEventMax = 0, IntPtr processHandle = default(IntPtr))
 		{
 			if (_winEventHook == IntPtr.Zero)
 			{
@@ -45,7 +45,7 @@ namespace MouseTrap.Interop
 			}
 		}
 
-		public void StopHook()
+		protected void StopWinEventHook()
 		{
 			if (_winEventHook != IntPtr.Zero && NativeMethods.UnhookWinEvent(_winEventHook))
 			{
@@ -59,7 +59,7 @@ namespace MouseTrap.Interop
 		{
 			if (hwnd != IntPtr.Zero)
 			{
-				EventHandler?.Invoke(this, new WinEventHookEventArgs
+				WinEventHookEvent?.Invoke(this, new WinEventHookEventArgs
 				{
 					EventType = (WinEventConstant)eventType,
 					Handle = hwnd,
@@ -93,7 +93,7 @@ namespace MouseTrap.Interop
 			}
 
 			// Free any unmanaged objects here.
-			StopHook();
+			StopWinEventHook();
 
 			// Done
 			disposed = true;

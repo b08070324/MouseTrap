@@ -4,28 +4,25 @@ using System.Text;
 
 namespace MouseTrap.Hooks
 {
-	public class ForegroundHook : IDisposable
+	public class ForegroundHook : WinEventHook
 	{
-		private WinEventHook _winHook;
 		private StringBuilder _sb = new StringBuilder(1024);
 		private uint lastProcessId;
-
 		public event EventHandler<ForegroundHookEventArgs> ForegroundWindowChanged;
 
-		public ForegroundHook()
+		public ForegroundHook() : base()
 		{
-			_winHook = new WinEventHook();
-			_winHook.EventHandler += OnWinHookEvent;
+			WinEventHookEvent += OnWinHookEvent;
 		}
 
 		public void StartHook()
 		{
-			_winHook.StartHook(WinEventConstant.EVENT_SYSTEM_FOREGROUND);
+			StartWinEventHook(WinEventConstant.EVENT_SYSTEM_FOREGROUND);
 		}
 
 		public void StopHook()
 		{
-			_winHook.StopHook();
+			StopWinEventHook();
 		}
 
 		private void OnWinHookEvent(object sender, WinEventHookEventArgs e)
@@ -52,36 +49,6 @@ namespace MouseTrap.Hooks
 					});
 				}
 			}
-		}
-
-		// IDisposable
-		bool disposed = false;
-
-		~ForegroundHook()
-		{
-			Dispose(false);
-		}
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposed) return;
-
-			if (disposing)
-			{
-				// Free any other managed objects here.
-			}
-
-			// Free any unmanaged objects here.
-			_winHook.Dispose();
-
-			// Done
-			disposed = true;
 		}
 	}
 }

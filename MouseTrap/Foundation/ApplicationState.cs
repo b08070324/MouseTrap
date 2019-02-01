@@ -140,6 +140,15 @@ namespace MouseTrap.Foundation
 			// Property changed
 			ForegroundWindow = windowItem;
 			OnPropertyChanged(nameof(ForegroundWindow));
+
+			// Update window details if needed
+			if (!TargetWindow.IsValid && TargetWindow.IsPathValid)
+			{
+				if (TargetWindow.MatchByProcessPath(ForegroundWindow))
+				{
+					_mediator.RefreshWindowDetails();
+				}
+			}
 		}
 
 		public void SetTargetWindowTitle(string title)
