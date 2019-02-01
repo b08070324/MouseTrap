@@ -35,7 +35,7 @@ namespace MouseTrap
 		{
 			// Get mediator
 			_mediator = ConcreteMediatorFactory.GetMediator();
-			_mediator.OnViewChanged += OnViewChanged;
+			_mediator.PropertyChanged += Mediator_PropertyChanged;
 
 			// Create view models
 			ToolBarViewModel = new ToolBarViewModel(_mediator);
@@ -49,6 +49,14 @@ namespace MouseTrap
 			// Show main view
 			_mediator.RefreshWindowList();
 			SetCurrentView(_mediator.CurrentView);
+		}
+
+		private void Mediator_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(IMediator.CurrentView))
+			{
+				OnViewChanged();
+			}
 		}
 
 		private void MainWindow_Closing(object sender, CancelEventArgs e)

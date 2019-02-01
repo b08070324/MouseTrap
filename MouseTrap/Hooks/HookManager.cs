@@ -15,11 +15,7 @@ namespace MouseTrap.Hooks
 		public HookManager(IMediator mediator)
 		{
 			_mediator = mediator;
-			_mediator.OnAppClosing += OnAppClosing;
-			_mediator.OnTargetWindowUpdated += UpdateMouseHookRegion;
-			_mediator.OnBoundaryOffsetUpdated += UpdateMouseHookMargin;
-			_mediator.OnForegroundWindowUpdated += OnForegroundWindowUpdated;
-			_mediator.OnViewChanged += OnViewChanged;
+			_mediator.PropertyChanged += Mediator_PropertyChanged;
 
 			_foregroundHook = new ForegroundHook();
 			_foregroundHook.ForegroundWindowChanged += ForegroundHook_ForegroundWindowChanged;
@@ -31,6 +27,30 @@ namespace MouseTrap.Hooks
 
 			_mouseHook = new MouseHook();
 			UpdateMouseHookMargin();
+		}
+
+		private void Mediator_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			switch (e.PropertyName)
+			{
+				case nameof(IMediator.CurrentView):
+					OnViewChanged();
+					break;
+				case nameof(IMediator.TargetWindow):
+					UpdateMouseHookRegion();
+					break;
+				case nameof(IMediator.ForegroundWindow):
+					OnForegroundWindowUpdated();
+					break;
+				case nameof(IMediator.BoundaryOffset):
+					UpdateMouseHookMargin();
+					break;
+				case nameof(IMediator.WindowList):
+					break;
+				case nameof(IMediator.AppClosing):
+					OnAppClosing();
+					break;
+			}
 		}
 
 		public void OnAppClosing()

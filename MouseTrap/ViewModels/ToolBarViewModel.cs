@@ -10,7 +10,7 @@ namespace MouseTrap.ViewModels
 	{
 		public ToolBarViewModel(IMediator mediator) : base(mediator)
 		{
-			mediator.OnViewChanged += OnViewChanged;
+			_mediator.PropertyChanged += Mediator_PropertyChanged;
 
 			// Commands for view
 			ChooseWindowCommand = new RelayCommand(x => ShowWindowList(), x => ShowWindowListCanExecute);
@@ -19,7 +19,15 @@ namespace MouseTrap.ViewModels
 			RefreshListCommand = new RelayCommand(x => RefreshList(), x => true);
 		}
 
-		public void OnViewChanged()
+		private void Mediator_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(IMediator.CurrentView))
+			{
+				Mediator_OnViewChanged();
+			}
+		}
+
+		public void Mediator_OnViewChanged()
 		{
 			RaiseEvent(nameof(LockState));
 			RaiseEvent(nameof(CurrentView));

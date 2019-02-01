@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Windows;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using MouseTrap.Models;
 using MouseTrap.WindowQuery;
 
@@ -9,8 +8,8 @@ namespace MouseTrap.Foundation
 	public class ConcreteMediator : IMediator
 	{
 		// Fields
-		protected ApplicationState _applicationState;
-		protected IWindowQueryManager _windowQueryManager;
+		protected ApplicationState _appState;
+		protected IWindowQueryManager _windowManager;
 
 		// Initialisation
 		public ConcreteMediator()
@@ -19,108 +18,68 @@ namespace MouseTrap.Foundation
 
 		public void SetApplicationState(ApplicationState applicationState)
 		{
-			_applicationState = applicationState;
+			if (_appState != null) _appState.PropertyChanged -= ApplicationState_PropertyChanged;
+			_appState = applicationState;
+			_appState.PropertyChanged += ApplicationState_PropertyChanged;
 		}
 
 		public void SetWindowQueryManager(IWindowQueryManager queryManager)
 		{
-			_windowQueryManager = queryManager;
+			_windowManager = queryManager;
 		}
-
-		// Events
-		public event MediatorEventHandler OnWindowListUpdated;
-		public event MediatorEventHandler OnForegroundWindowUpdated;
-		public event MediatorEventHandler OnTargetWindowUpdated;
-		public event MediatorEventHandler OnViewChanged;
-		public event MediatorEventHandler OnBoundaryOffsetUpdated;
-		public event MediatorEventHandler OnAppClosing;
 
 		// Queries
-		public ObservableCollection<IWindowItem> WindowList { get => _applicationState.WindowList; }
-		public ViewType CurrentView { get => _applicationState.CurrentView; }
-		public IWindowItem TargetWindow { get => _applicationState.TargetWindow; }
-		public IWindowItem ForegroundWindow { get => _applicationState.ForegroundWindow; }
-		public Dimensions BoundaryOffset { get => _applicationState.BoundaryOffset; }
-		public bool IsLockEnabled { get => _applicationState.IsLockEnabled; }
-		public bool IsTargetWindowFocused { get => _applicationState.IsTargetWindowFocused; }
-		public bool IsWindowValid(IWindowItem windowItem) => _windowQueryManager.CheckWindow(windowItem);
-		public ObservableCollection<IWindowItem> GetWindowList() => _windowQueryManager.GetWindowList();
-		public WindowItemUpdateDetails GetWindowItemUpdate(IWindowItem windowItem) => _windowQueryManager.GetWindowItemUpdate(windowItem);
+		public ObservableCollection<IWindowItem> WindowList => _appState.WindowList;
+		public ViewType CurrentView => _appState.CurrentView;
+		public IWindowItem TargetWindow => _appState.TargetWindow;
+		public IWindowItem ForegroundWindow => _appState.ForegroundWindow;
+		public Dimensions BoundaryOffset => _appState.BoundaryOffset;
+		public bool IsLockEnabled => _appState.IsLockEnabled;
+		public bool IsTargetWindowFocused => _appState.IsTargetWindowFocused;
+		public bool DoesWindowExist(IWindowItem windowItem) => _windowManager.CheckWindow(windowItem);
+		public ObservableCollection<IWindowItem> GetWindowListUpdate() => _windowManager.GetWindowList();
+		public WindowItemUpdateDetails GetWindowItemUpdate(IWindowItem windowItem) => _windowManager.GetWindowItemUpdate(windowItem);
 
 		// Commands
-		public void RefreshWindowList()
+		public void RefreshWindowList() => _appState.RefreshWindowList();
+		public void SetForegroundWindow(IWindowItem windowItem) => _appState.SetForegroundWindow(windowItem);
+		public void RefreshWindowDetails() => _appState.UpdateTargetWindow();
+		public void SetTargetWindow(IWindowItem windowItem) => _appState.SetTargetWindow(windowItem);
+		public void SetTargetWindowTitle(string title) => _appState.SetTargetWindowTitle(title);
+		public void SetTargetWindowRect(Dimensions value) => _appState.SetTargetWindowRect(value);
+		public void SetCurrentView(ViewType viewType) => _appState.SetCurrentView(viewType);
+		public void TargetWindowLost() => _appState.ChangeViewAfterTargetWindowLost();
+		public void SetBoundaryOffset(Dimensions value) => _appState.SetBoundaryOffset(value);
+		public void AppClosing() => OnPropertyChanged(nameof(AppClosing));
+
+		// Events
+		public event PropertyChangedEventHandler PropertyChanged;
+		private void OnPropertyChanged(string propertyName)
 		{
-			_applicationState.RefreshWindowList();
-			OnWindowListUpdated?.Invoke();
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public void RefreshWindowDetails()
+		// ApplicationState event handler
+		private void ApplicationState_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (_applicationState.UpdateTargetWindow())
+			switch (e.PropertyName)
 			{
-				OnTargetWindowUpdated?.Invoke();
+				case nameof(ApplicationState.WindowList):
+					OnPropertyChanged(nameof(WindowList));
+					break;
+				case nameof(ApplicationState.CurrentView):
+					OnPropertyChanged(nameof(CurrentView));
+					break;
+				case nameof(ApplicationState.TargetWindow):
+					OnPropertyChanged(nameof(TargetWindow));
+					break;
+				case nameof(ApplicationState.ForegroundWindow):
+					OnPropertyChanged(nameof(ForegroundWindow));
+					break;
+				case nameof(ApplicationState.BoundaryOffset):
+					OnPropertyChanged(nameof(BoundaryOffset));
+					break;
 			}
-		}
-
-		public void SetBoundaryOffset(Dimensions value)
-		{
-			if (_applicationState.SetBoundaryOffset(value))
-			{
-				OnBoundaryOffsetUpdated?.Invoke();
-			}
-		}
-
-		public void SetCurrentView(ViewType viewType)
-		{
-			if (_applicationState.SetCurrentView(viewType))
-			{
-				OnViewChanged?.Invoke();
-			}
-		}
-
-		public void SetForegroundWindow(IWindowItem windowItem)
-		{
-			if (_applicationState.SetForegroundWindow(windowItem))
-			{
-				OnForegroundWindowUpdated?.Invoke();
-			}
-		}
-
-		public void SetTargetWindow(IWindowItem windowItem)
-		{
-			if (_applicationState.SetTargetWindow(windowItem))
-			{
-				OnTargetWindowUpdated?.Invoke();
-			}
-		}
-
-		public void SetTargetWindowTitle(string title)
-		{
-			if (_applicationState.SetTargetWindowTitle(title))
-			{
-				OnTargetWindowUpdated?.Invoke();
-			}
-		}
-
-		public void SetTargetWindowRect(Dimensions value)
-		{
-			if (_applicationState.SetTargetWindowRect(value))
-			{
-				OnTargetWindowUpdated?.Invoke();
-			}
-		}
-
-		public void TargetWindowLost()
-		{
-			if (_applicationState.ChangeViewAfterTargetWindowLost())
-			{
-				OnViewChanged?.Invoke();
-			}
-		}
-
-		public void AppClosing()
-		{
-			OnAppClosing?.Invoke();
 		}
 	}
 }

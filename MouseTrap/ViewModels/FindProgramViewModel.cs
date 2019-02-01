@@ -18,7 +18,15 @@ namespace MouseTrap.ViewModels
 			IsFilenameValid = false;
 			FindFileCommand = new RelayCommand(x => ShowOpenFileDialog());
 			PropertyChanged += FindProgramViewModel_PropertyChanged;
-			mediator.OnViewChanged += Mediator_OnViewChanged;
+			_mediator.PropertyChanged += Mediator_PropertyChanged;
+		}
+
+		private void Mediator_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(IMediator.CurrentView))
+			{
+				Mediator_OnViewChanged();
+			}
 		}
 
 		private void Mediator_OnViewChanged()

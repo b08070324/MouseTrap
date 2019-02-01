@@ -11,8 +11,20 @@ namespace MouseTrap.ViewModels
 	{
 		public WindowListViewModel(IMediator mediator) : base(mediator)
 		{
-			mediator.OnTargetWindowUpdated += UpdateSelectedWindow;
-			mediator.OnWindowListUpdated += UpdateSelectedWindow;
+			_mediator.PropertyChanged += Mediator_PropertyChanged;
+		}
+
+		private void Mediator_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			switch (e.PropertyName)
+			{
+				case nameof(IMediator.TargetWindow):
+					UpdateSelectedWindow();
+					break;
+				case nameof(IMediator.WindowList):
+					UpdateSelectedWindow();
+					break;
+			}
 		}
 
 		private void UpdateSelectedWindow()

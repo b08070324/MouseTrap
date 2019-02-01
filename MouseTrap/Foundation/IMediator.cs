@@ -1,25 +1,15 @@
 ﻿using MouseTrap.Models;
 using MouseTrap.WindowQuery;
 using System.Collections.ObjectModel;
-using System.Windows;
+using System.ComponentModel;
 
 namespace MouseTrap.Foundation
 {
-	public delegate void MediatorEventHandler();
-
-	public interface IMediator
+	public interface IMediator : INotifyPropertyChanged
 	{
 		// Initialisation
 		void SetApplicationState(ApplicationState applicationState);
 		void SetWindowQueryManager(IWindowQueryManager queryManager);
-
-		// Events
-		event MediatorEventHandler OnWindowListUpdated;
-		event MediatorEventHandler OnForegroundWindowUpdated;
-		event MediatorEventHandler OnTargetWindowUpdated;
-		event MediatorEventHandler OnViewChanged;
-		event MediatorEventHandler OnBoundaryOffsetUpdated;
-		event MediatorEventHandler OnAppClosing;
 
 		// Queries
 		ObservableCollection<IWindowItem> WindowList { get; }
@@ -29,8 +19,8 @@ namespace MouseTrap.Foundation
 		Dimensions BoundaryOffset { get; }
 		bool IsTargetWindowFocused { get; }
 		bool IsLockEnabled { get; }
-		bool IsWindowValid(IWindowItem windowItem);
-		ObservableCollection<IWindowItem> GetWindowList();
+		bool DoesWindowExist(IWindowItem windowItem);
+		ObservableCollection<IWindowItem> GetWindowListUpdate();
 		WindowItemUpdateDetails GetWindowItemUpdate(IWindowItem windowItem);
 
 		// Commands

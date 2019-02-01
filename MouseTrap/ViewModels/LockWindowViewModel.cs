@@ -20,11 +20,27 @@ namespace MouseTrap.ViewModels
 
 		public LockWindowViewModel(IMediator mediator) : base(mediator)
 		{
-			mediator.OnForegroundWindowUpdated += OnForegroundWindowUpdated;
-			mediator.OnViewChanged += Mediator_OnViewChanged;
-			mediator.OnTargetWindowUpdated += Mediator_OnTargetWindowUpdated;
-			mediator.OnBoundaryOffsetUpdated += Mediator_OnBoundaryOffsetUpdated;
+			_mediator.PropertyChanged += Mediator_PropertyChanged;
 			PropertyChanged += LockWindowViewModel_PropertyChanged;
+		}
+
+		private void Mediator_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			switch (e.PropertyName)
+			{
+				case nameof(IMediator.CurrentView):
+					Mediator_OnViewChanged();
+					break;
+				case nameof(IMediator.TargetWindow):
+					Mediator_OnTargetWindowUpdated();
+					break;
+				case nameof(IMediator.ForegroundWindow):
+					OnForegroundWindowUpdated();
+					break;
+				case nameof(IMediator.BoundaryOffset):
+					Mediator_OnBoundaryOffsetUpdated();
+					break;
+			}
 		}
 
 		private void LockWindowViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
