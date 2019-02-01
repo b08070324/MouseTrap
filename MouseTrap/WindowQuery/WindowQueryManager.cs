@@ -19,7 +19,7 @@ namespace MouseTrap.WindowQuery
 
 		public bool CheckWindow(IWindowItem windowItem)
 		{
-			return Win32Interop.IsWindow(windowItem.Handle);
+			return NativeMethods.IsWindow(windowItem.Handle);
 		}
 
 		public WindowItemUpdateDetails GetWindowItemUpdate(IWindowItem windowItem)
@@ -35,10 +35,10 @@ namespace MouseTrap.WindowQuery
 
 			StringBuilder sb = new StringBuilder(1024);
 
-			Win32Interop.EnumWindows((hWnd, lParam) =>
+			NativeMethods.EnumWindows((hWnd, lParam) =>
 			{
 				// Data - Get process ID for window
-				Win32Interop.GetWindowThreadProcessId(hWnd, out uint windowThreadProcId);
+				NativeMethods.GetWindowThreadProcessId(hWnd, out uint windowThreadProcId);
 
 				// Check window
 				if (ShouldFilterWindow(hWnd, windowThreadProcId)) return true;
@@ -47,7 +47,7 @@ namespace MouseTrap.WindowQuery
 				list.Add(GetWindowItem(sb, hWnd, windowThreadProcId));
 
 				return true;
-			}, 0);
+			}, IntPtr.Zero);
 
 			return list;
 		}
@@ -58,10 +58,10 @@ namespace MouseTrap.WindowQuery
 			if (windowThreadProcId == _currentProcessId) return true;
 
 			// Filter - Check visibility
-			if (!Win32Interop.IsWindowVisible(hWnd) || Win32Interop.IsIconic(hWnd)) return true;
+			if (!NativeMethods.IsWindowVisible(hWnd) || NativeMethods.IsIconic(hWnd)) return true;
 
 			// Filter - Ignore tool windows
-			if (Win32Interop.WindowHasExStyle(hWnd, WindowStylesEx.WS_EX_TOOLWINDOW | WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP)) return true;
+			if (NativeMethods.WindowHasExStyle(hWnd, WindowStylesEx.WS_EX_TOOLWINDOW | WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP)) return true;
 
 			// Don't filter window
 			return false;
@@ -70,14 +70,14 @@ namespace MouseTrap.WindowQuery
 		private WindowItem GetWindowItem(StringBuilder sb, IntPtr hWnd, uint windowThreadProcId)
 		{
 			// Name of executable
-			Win32Interop.GetFullProcessName(sb, (int)windowThreadProcId);
+			NativeMethods.GetFullProcessName(sb, (int)windowThreadProcId);
 			string processName = sb.ToString();
 
 			// Data - Get window title
-			var title = Win32Interop.GetWindowText(hWnd);
+			var title = NativeMethods.GetWindowText(hWnd);
 
 			// Get window dimensions
-			Win32Interop.GetWindowRect(hWnd, out Win32Rect rect);
+			NativeMethods.GetWindowRect(hWnd, out Win32Rect rect);
 
 			// Add to list
 			return new WindowItem

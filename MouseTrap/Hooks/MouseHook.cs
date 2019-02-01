@@ -48,13 +48,13 @@ namespace MouseTrap.Hooks
 			if (mouseHookPtr == IntPtr.Zero)
 			{
 				var hMod = System.Runtime.InteropServices.Marshal.GetHINSTANCE(typeof(MainWindow).Module);
-				mouseHookPtr = Win32Interop.SetWindowsHookEx(HookType.WH_MOUSE_LL, mouseHookCallback, hMod, 0);
+				mouseHookPtr = NativeMethods.SetWindowsHookEx(HookType.WH_MOUSE_LL, mouseHookCallback, hMod, 0);
 			}
 		}
 
 		public void StopHook()
 		{
-			if (mouseHookPtr != IntPtr.Zero) Win32Interop.UnhookWindowsHookEx(mouseHookPtr);
+			if (mouseHookPtr != IntPtr.Zero) NativeMethods.UnhookWindowsHookEx(mouseHookPtr);
 			mouseHookPtr = IntPtr.Zero;
 		}
 
@@ -89,14 +89,14 @@ namespace MouseTrap.Hooks
 				else if (point.Y > boundaries.Bottom) point.Y = boundaries.Bottom;
 
 				// Move cursor
-				Win32Interop.SetCursorPos(point.X, point.Y);
+				NativeMethods.SetCursorPos(point.X, point.Y);
 
 				// Done
 				return new IntPtr(1);
 			}
 
 			// Skip
-			return Win32Interop.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
+			return NativeMethods.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
 		}
 
 		// IDisposable

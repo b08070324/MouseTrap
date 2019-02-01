@@ -4,8 +4,6 @@ namespace MouseTrap.Interop
 {
 	public class WinEventHook : IDisposable
 	{
-		bool disposed = false;
-
 		// Ensure delegate is not collected prematurely
 		private readonly WinEventDelegate _winEventDelegate;
 		private IntPtr _winEventHook;
@@ -35,12 +33,12 @@ namespace MouseTrap.Interop
 				// specified events from all threads and processes.
 				_processId = 0;
 				_threadId = 0;
-				if (processHandle != IntPtr.Zero) _threadId = Win32Interop.GetWindowThreadProcessId(processHandle, out _processId);
+				if (processHandle != IntPtr.Zero) _threadId = NativeMethods.GetWindowThreadProcessId(processHandle, out _processId);
 
 				_winEventMin = winEventMin;
 				_winEventMax = winEventMax > 0 ? winEventMax : winEventMin;
 
-				_winEventHook = Win32Interop.SetWinEventHook(
+				_winEventHook = NativeMethods.SetWinEventHook(
 					(uint)_winEventMin,
 					(uint)_winEventMax,
 					IntPtr.Zero, _winEventDelegate, _processId, _threadId, (uint)WinEventConstant.WINEVENT_OUTOFCONTEXT);
@@ -49,40 +47,10 @@ namespace MouseTrap.Interop
 
 		public void StopHook()
 		{
-			if (_winEventHook != IntPtr.Zero && Win32Interop.UnhookWinEvent(_winEventHook))
+			if (_winEventHook != IntPtr.Zero && NativeMethods.UnhookWinEvent(_winEventHook))
 			{
 				_winEventHook = IntPtr.Zero;
 			}
-		}
-
-		// IDisposable
-		~WinEventHook()
-		{
-			Dispose(false);
-		}
-
-		// IDisposable
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		// IDisposable
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposed) return;
-
-			if (disposing)
-			{
-				// Free any other managed objects here.
-			}
-
-			// Free any unmanaged objects here.
-			StopHook();
-
-			// Done
-			disposed = true;
 		}
 
 		// Callback triggered when hook triggers
@@ -99,6 +67,36 @@ namespace MouseTrap.Interop
 					ChildId = idChild
 				});
 			}
+		}
+
+		// IDisposable
+		bool disposed = false;
+
+		~WinEventHook()
+		{
+			Dispose(false);
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed) return;
+
+			if (disposing)
+			{
+				// Free any other managed objects here.
+			}
+
+			// Free any unmanaged objects here.
+			StopHook();
+
+			// Done
+			disposed = true;
 		}
 	}
 }

@@ -10,6 +10,7 @@ namespace MouseTrap.Interop
 		public int mouseData;
 		public int flags;
 		public int time;
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2111:PointersShouldNotBeVisible")]
 		public UIntPtr dwExtraInfo;
 	}
 }

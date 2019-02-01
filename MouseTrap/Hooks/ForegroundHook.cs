@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MouseTrap.Hooks
 {
-	public class ForegroundHook
+	public class ForegroundHook : IDisposable
 	{
 		private WinEventHook _winHook;
 		private StringBuilder _sb = new StringBuilder(1024);
@@ -33,15 +33,15 @@ namespace MouseTrap.Hooks
 			if (e.Handle != null && e.ObjectId == 0)
 			{
 				// Ignore these windows
-				if (Win32Interop.WindowHasExStyle(e.Handle, WindowStylesEx.WS_EX_NOACTIVATE)) return;
+				if (NativeMethods.WindowHasExStyle(e.Handle, WindowStylesEx.WS_EX_NOACTIVATE)) return;
 
 				// Get process ID and check against last
-				Win32Interop.GetWindowThreadProcessId(e.Handle, out uint windowThreadProcId);
+				NativeMethods.GetWindowThreadProcessId(e.Handle, out uint windowThreadProcId);
 
 				if (windowThreadProcId != lastProcessId)
 				{
 					lastProcessId = windowThreadProcId;
-					Win32Interop.GetFullProcessName(_sb, (int)windowThreadProcId);
+					NativeMethods.GetFullProcessName(_sb, (int)windowThreadProcId);
 					string processName = _sb.ToString();
 
 					ForegroundWindowChanged?.Invoke(this, new ForegroundHookEventArgs
@@ -52,6 +52,36 @@ namespace MouseTrap.Hooks
 					});
 				}
 			}
+		}
+
+		// IDisposable
+		bool disposed = false;
+
+		~ForegroundHook()
+		{
+			Dispose(false);
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed) return;
+
+			if (disposing)
+			{
+				// Free any other managed objects here.
+			}
+
+			// Free any unmanaged objects here.
+			_winHook.Dispose();
+
+			// Done
+			disposed = true;
 		}
 	}
 }

@@ -5,7 +5,7 @@ using MouseTrap.Models;
 
 namespace MouseTrap.Hooks
 {
-	public class HookManager
+	public class HookManager : IDisposable
 	{
 		private IMediator _mediator;
 		private ForegroundHook _foregroundHook;
@@ -151,24 +151,56 @@ namespace MouseTrap.Hooks
 				Handle = e.Handle,
 				ProcessId = e.WindowThreadProcId,
 				ProcessPath = e.ProcessPath,
-				Title = Win32Interop.GetWindowText(e.Handle)
+				Title = NativeMethods.GetWindowText(e.Handle)
 			});
 		}
 
-		private void UpdateHook_WindowTitleChanged(object sender, string title)
+		private void UpdateHook_WindowTitleChanged(object sender, WindowTitleEventArgs e)
 		{
-			_mediator.SetTargetWindowTitle(title);
+			_mediator.SetTargetWindowTitle(e.Title);
 		}
 
-		private void UpdateHook_WindowRectChanged(object sender, Win32Rect rect)
+		private void UpdateHook_WindowRectChanged(object sender, WindowRectEventArgs e)
 		{
-			var dimensions = new Dimensions(rect.Left, rect.Top, rect.Right, rect.Bottom);
+			var dimensions = new Dimensions(e.WindowRect.Left, e.WindowRect.Top, e.WindowRect.Right, e.WindowRect.Bottom);
 			_mediator.SetTargetWindowRect(dimensions);
 		}
 
 		private void UpdateHook_WindowClosed(object sender, EventArgs e)
 		{
 			_mediator.TargetWindowLost();
+		}
+
+		// IDisposable
+		bool disposed = false;
+
+		~HookManager()
+		{
+			Dispose(false);
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed) return;
+
+			if (disposing)
+			{
+				// Free any other managed objects here.
+			}
+
+			// Free any unmanaged objects here.
+			_foregroundHook.Dispose();
+			_updateHook.Dispose();
+			_mouseHook.Dispose();
+
+			// Done
+			disposed = true;
 		}
 	}
 }

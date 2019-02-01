@@ -3,14 +3,14 @@ using System;
 
 namespace MouseTrap.Hooks
 {
-	public class UpdateHook
+	public class UpdateHook : IDisposable
 	{
 		private WinEventHook _windowUpdateHook;
 		private WinEventHook _windowClosedHook;
 		private IntPtr _targetHandle;
 
-		public event EventHandler<string> WindowTitleChanged;
-		public event EventHandler<Win32Rect> WindowRectChanged;
+		public event EventHandler<WindowTitleEventArgs> WindowTitleChanged;
+		public event EventHandler<WindowRectEventArgs> WindowRectChanged;
 		public event EventHandler WindowClosed;
 
 		public UpdateHook()
@@ -44,13 +44,13 @@ namespace MouseTrap.Hooks
 			{
 				if (e.EventType == WinEventConstant.EVENT_OBJECT_NAMECHANGE)
 				{
-					var title = Win32Interop.GetWindowText(_targetHandle);
-					WindowTitleChanged?.Invoke(this, title);
+					var title = NativeMethods.GetWindowText(_targetHandle);
+					WindowTitleChanged?.Invoke(this, e: new WindowTitleEventArgs { Title = title });
 				}
 				else if (e.EventType == WinEventConstant.EVENT_OBJECT_LOCATIONCHANGE)
 				{
-					Win32Interop.GetWindowRect(_targetHandle, out Win32Rect rect);
-					WindowRectChanged?.Invoke(this, rect);
+					NativeMethods.GetWindowRect(_targetHandle, out Win32Rect rect);
+					WindowRectChanged?.Invoke(this, e: new WindowRectEventArgs { WindowRect = rect });
 				}
 			}
 		}
@@ -61,6 +61,37 @@ namespace MouseTrap.Hooks
 			{
 				WindowClosed?.Invoke(this, null);
 			}
+		}
+
+		// IDisposable
+		bool disposed = false;
+
+		~UpdateHook()
+		{
+			Dispose(false);
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed) return;
+
+			if (disposing)
+			{
+				// Free any other managed objects here.
+			}
+
+			// Free any unmanaged objects here.
+			_windowUpdateHook.Dispose();
+			_windowClosedHook.Dispose();
+
+			// Done
+			disposed = true;
 		}
 	}
 }

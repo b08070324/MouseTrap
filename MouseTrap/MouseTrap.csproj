@@ -89,6 +89,8 @@
     <Compile Include="Foundation\DesignMediator.cs" />
     <Compile Include="Foundation\MediatorEventLog.cs" />
     <Compile Include="Hooks\MouseHook.cs" />
+    <Compile Include="Hooks\WindowRectEventArgs.cs" />
+    <Compile Include="Hooks\WindowTitleEventArgs.cs" />
     <Compile Include="Interop\HookType.cs" />
     <Compile Include="Interop\MSLLHOOKSTRUCT.cs" />
     <Compile Include="Interop\Point.cs" />
