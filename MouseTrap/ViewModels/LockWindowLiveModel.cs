@@ -23,19 +23,6 @@ namespace MouseTrap.ViewModels
 			TargetWindowDetails = targetWindowDetails;
 			TargetWindowDetails.PropertyChanged += TargetWindowDetails_PropertyChanged;
 
-			// Set title
-			if (TargetWindowDetails.WindowTitle != null)
-			{
-				Title = TargetWindowDetails.WindowTitle;
-			}
-
-			// Set dimensions
-			if (TargetWindowDetails.WindowDimensions != null)
-			{
-				WindowHeight = TargetWindowDetails.WindowDimensions.Height;
-				WindowWidth = TargetWindowDetails.WindowDimensions.Width;
-			}
-
 			// Subscribe to input changes
 			PropertyChanged += LockWindowLiveModel_PropertyChanged;
 		}

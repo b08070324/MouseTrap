@@ -1,5 +1,4 @@
-﻿using MouseTrap.Data;
-using MouseTrap.Models;
+﻿using MouseTrap.Models;
 using System;
 using System.ComponentModel;
 
@@ -122,16 +121,16 @@ namespace MouseTrap.ViewModels
 				switch (ToolBarViewModel.CurrentView)
 				{
 					case ViewType.WindowList:
-						StopWatch();
 						SetWindowList();
+						StopWatch();
 						break;
 					case ViewType.FindProgram:
-						StopWatch();
 						SetFindProgram();
+						StopWatch();
 						break;
 					case ViewType.LockWindow:
-						StartWatch();
 						SetLockWindow();
+						StartWatch();
 						break;
 					default:
 						break;

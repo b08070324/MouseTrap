@@ -48,6 +48,10 @@ namespace MouseTrap.Models
 				ProcessPath = NativeMethods.GetFullProcessName((int)_processId);
 				WatchingSpecificWindow?.Invoke(this, EventArgs.Empty);
 			}
+			else
+			{
+				WatchingCancelled?.Invoke(this, new WatchingCancelledEventArgs { WindowWasClosed = true });
+			}
 		}
 
 		public void CancelWatch(bool windowWasClosed = false)
