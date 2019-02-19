@@ -1,5 +1,4 @@
 ﻿using MouseTrap.Foundation;
-using System.ComponentModel;
 
 namespace MouseTrap.ViewModels
 {
@@ -9,6 +8,12 @@ namespace MouseTrap.ViewModels
 		private bool _windowIsFocused;
 		private double _windowHeight;
 		private double _windowWidth;
+		private double _leftOffset;
+		private double _rightOffset;
+		private double _topOffset;
+		private double _bottomOffset;
+
+		public string ProcessPath { get; set; } = string.Empty;
 
 		public string Title
 		{
@@ -34,11 +39,31 @@ namespace MouseTrap.ViewModels
 			set => SetAndRaiseEvent(ref _windowWidth, value);
 		}
 
-		public string ProcessPath { get; set; } = string.Empty;
-		public double LeftOffset { get; set; }
-		public double RightOffset { get; set; }
-		public double TopOffset { get; set; }
-		public double BottomOffset { get; set; }
+		public double LeftOffset
+		{
+			get => _leftOffset;
+			set { SetAndRaiseEvent(ref _leftOffset, value); RaiseEvent(nameof(BoundaryOffset)); }
+		}
+
+		public double RightOffset
+		{
+			get => _rightOffset;
+			set { SetAndRaiseEvent(ref _rightOffset, value); RaiseEvent(nameof(BoundaryOffset)); }
+		}
+
+		public double TopOffset
+		{
+			get => _topOffset;
+			set { SetAndRaiseEvent(ref _topOffset, value); RaiseEvent(nameof(BoundaryOffset)); }
+		}
+
+		public double BottomOffset
+		{
+			get => _bottomOffset;
+			set { SetAndRaiseEvent(ref _bottomOffset, value); RaiseEvent(nameof(BoundaryOffset)); }
+		}
+
+		// Derived property used by marginBox
 		public double[] BoundaryOffset { get => new double[] { LeftOffset, RightOffset, TopOffset, BottomOffset }; }
 	}
 }
