@@ -23,7 +23,7 @@ namespace MouseTrap.Behaviours
 		{
 			if (AppState.IsWatchingProgramPath)
 			{
-				if (AppState.ProcessPath == e.ProcessPath)
+				if (string.Compare(AppState.ProcessPath, e.ProcessPath, true) == 0)
 				{
 					// Trace
 					WriteLine($"{nameof(ProgramPathToSpecificWindowBehaviour)}.{nameof(ForegroundWindowHook_ForegroundWindowChanged)}");
