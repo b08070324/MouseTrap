@@ -90,7 +90,7 @@ namespace MouseTrap.Hooks
 			if (IsRestricted && isMouseMoveMsg && code >= 0 && BoundaryIsValid)
 			{
 				// Get pointer data
-				var mouseInfo = (MSLLHOOKSTRUCT)System.Runtime.InteropServices.Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
+				var mouseInfo = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
 				var point = mouseInfo.pt;
 
 				// Limit X
