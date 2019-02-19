@@ -6,6 +6,8 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
+	// Determine if system variables change
+	// If changed, update TargetWindowDetails with changes
 	internal class UpdateDetailsBehaviour : BaseBehaviour
 	{
 		private IApplicationState AppState { get; }
@@ -22,10 +24,13 @@ namespace MouseTrap.Behaviours
 			TargetWindowDetails = targetWindowDetails;
 			WindowUpdateHook = windowUpdateHook;
 			ForegroundWindowHook = foregroundWindowHook;
+
 			AppState.WatchingSpecificWindow += AppState_WatchingSpecificWindow;
 			AppState.WatchingProgramPath += AppState_WatchingProgramPath;
+
 			WindowUpdateHook.TitleChanged += WindowUpdateHook_TitleChanged;
 			WindowUpdateHook.DimensionsChanged += WindowUpdateHook_DimensionsChanged;
+
 			ForegroundWindowHook.ForegroundWindowChanged += ForegroundWindowHook_ForegroundWindowChanged;
 		}
 

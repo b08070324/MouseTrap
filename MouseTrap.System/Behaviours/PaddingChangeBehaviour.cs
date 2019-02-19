@@ -7,7 +7,6 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
-
 	// If specific window is picked, determine if UI changes padding
 	// If changed, update MouseHook with size and padding
 	internal class PaddingChangeBehaviour : BaseBehaviour
