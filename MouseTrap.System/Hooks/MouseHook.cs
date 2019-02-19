@@ -39,14 +39,6 @@ namespace MouseTrap.Hooks
 
 				// Set hook
 				MouseHookPtr = NativeMethods.SetWindowsHookEx(HookType.WH_MOUSE_LL, MouseHookCallback, IntPtr.Zero, 0);
-
-				// TODO improve error handling
-				if (MouseHookPtr == IntPtr.Zero)
-				{
-					var errorCode = Marshal.GetLastWin32Error();
-					string errorMessage = new Win32Exception(errorCode).Message;
-					WriteLine($"{errorCode} {errorMessage}");
-				}
 			}
 		}
 
