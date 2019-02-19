@@ -10,10 +10,9 @@ namespace MouseTrap
 	public partial class MainWindow : Window
 	{
 		// Constructor
-		public MainWindow(MainWindowViewModel viewModel) : base()
+		public MainWindow() : base()
 		{
 			InitializeComponent();
-			DataContext = viewModel;
 		}
 	}
 }

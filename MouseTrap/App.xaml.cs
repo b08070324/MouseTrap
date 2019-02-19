@@ -11,7 +11,6 @@ namespace MouseTrap
 	public partial class App : Application
 	{
 		private IApplicationSystem ApplicationSystem { get; set; }
-		private MainWindowViewModel MainWindowViewModel { get; set; }
 
 		public App()
 		{
@@ -21,6 +20,10 @@ namespace MouseTrap
 
 		private void App_Startup(object sender, StartupEventArgs e)
 		{
+			// Show window
+			var mainWindow = new MainWindow();
+			mainWindow.Show();
+
 			// Create system
 			ApplicationSystem = ApplicationSystemFactory.GetApplicationSystem();
 
@@ -34,16 +37,12 @@ namespace MouseTrap
 			ToolBarViewModel toolBarViewModelFactory() { return new ToolBarLiveModel(ApplicationSystem.ApplicationState); }
 
 			// Create main view model
-			MainWindowViewModel = new MainWindowLiveModel(
+			mainWindow.DataContext = new MainWindowLiveModel(
 				ApplicationSystem, 
 				windowListLiveModelFactory, 
 				findProgramViewModelFactory,
 				lockWindowViewModelFactory,
 				toolBarViewModelFactory);
-
-			// Show window
-			var mainWindow = new MainWindow(MainWindowViewModel);
-			mainWindow.Show();
 		}
 
 		private void App_Exit(object sender, ExitEventArgs e)
