@@ -31,7 +31,7 @@ namespace MouseTrap
 			WindowListViewModel windowListLiveModelFactory() { return new WindowListLiveModel(new WindowCatalogue()); }
 			FindProgramViewModel findProgramViewModelFactory() { return new FindProgramLiveModel(); }
 			LockWindowViewModel lockWindowViewModelFactory() { return new LockWindowLiveModel(ApplicationSystem.ApplicationState, ApplicationSystem.TargetWindowDetails); }
-			ToolBarViewModel toolBarViewModelFactory() { return new ToolBarLiveModel(); }
+			ToolBarViewModel toolBarViewModelFactory() { return new ToolBarLiveModel(ApplicationSystem.ApplicationState); }
 
 			// Create main view model
 			MainWindowViewModel = new MainWindowLiveModel(

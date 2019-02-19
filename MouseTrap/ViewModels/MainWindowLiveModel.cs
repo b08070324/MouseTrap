@@ -64,7 +64,6 @@ namespace MouseTrap.ViewModels
 			if (e.WindowWasClosed)
 			{
 				UpdateTargetWindowDetails();
-				if (ToolBarViewModel is ToolBarLiveModel toolBarLiveModel) toolBarLiveModel.ToggleLockWindow();
 			}
 		}
 
