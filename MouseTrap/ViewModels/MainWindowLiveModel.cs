@@ -67,8 +67,17 @@ namespace MouseTrap.ViewModels
 		{
 			// Create view model
 			var windowListLiveModel = WindowListViewModelFactory();
+
+			// Set selected window with a process ID to enable re-selection in list
 			if (ProcessId != default) windowListLiveModel.SelectedWindow = new WindowListItem { ProcessId = ProcessId };
+
+			// Refresh list
 			windowListLiveModel.RefreshList();
+
+			// Check SelectedWindow was updated from new list, otherwise clear details
+			if (windowListLiveModel.SelectedWindow == null) UpdateTargetWindowDetails();
+
+			// Subscribe to change events
 			windowListLiveModel.PropertyChanged += WindowListLiveModel_PropertyChanged;
 
 			// Set view model
@@ -83,7 +92,11 @@ namespace MouseTrap.ViewModels
 		{
 			// Create view model
 			var findProgramLiveModel = FindProgramViewModelFactory();
+
+			// Populate form with existing process path
 			if (ProcessPath != default) findProgramLiveModel.Filename = ProcessPath;
+
+			// Subscribe to change events
 			findProgramLiveModel.PropertyChanged += FindProgramLiveModel_PropertyChanged;
 
 			// Set view model
@@ -98,6 +111,8 @@ namespace MouseTrap.ViewModels
 		{
 			// Create view model
 			var lockWindowLiveModel = LockWindowViewModelFactory();
+
+			// Set processpath, which doesn't change
 			lockWindowLiveModel.ProcessPath = ProcessPath;
 
 			// Set view model

@@ -16,6 +16,7 @@ namespace MouseTrap.ViewModels
 		public override void RefreshList()
 		{
 			// Store ref to selected window
+			// SelectedWindow is cleared by view datagrid in some circumstances
 			uint processId = SelectedWindow == null ? 0 : SelectedWindow.ProcessId;
 
 			// Refresh list
@@ -36,8 +37,11 @@ namespace MouseTrap.ViewModels
 			// Reset selected window
 			if (processId != 0)
 			{
+				// Look for window with matching process ID
 				var item = WindowList.FirstOrDefault(x => x.ProcessId == processId);
-				if (item != null) SelectedWindow = item;
+
+				// Set SelectedWindow to list entry, or clear
+				SelectedWindow = item ?? null;
 			}
 		}
 	}
