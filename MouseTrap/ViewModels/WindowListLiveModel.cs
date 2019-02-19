@@ -6,14 +6,14 @@ namespace MouseTrap.ViewModels
 {
 	public class WindowListLiveModel : WindowListViewModel
 	{
-		private WindowCatalogue Catalogue { get; set; }
+		private IWindowCatalogue Catalogue { get; set; }
 
-		public WindowListLiveModel()
+		public WindowListLiveModel(IWindowCatalogue catalogue)
 		{
-			Catalogue = new WindowCatalogue();
+			Catalogue = catalogue;
 		}
 
-		public void RefreshList()
+		public override void RefreshList()
 		{
 			// Store ref to selected window
 			uint processId = SelectedWindow == null ? 0 : SelectedWindow.ProcessId;

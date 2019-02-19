@@ -1,7 +1,6 @@
 ﻿using MouseTrap.Foundation;
 using MouseTrap.Models;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 namespace MouseTrap.ViewModels
 {
@@ -14,6 +13,8 @@ namespace MouseTrap.ViewModels
 			get => _selectedWindow;
 			set => SetAndRaiseEvent(ref _selectedWindow, value);
 		}
+
+		public virtual void RefreshList() { }
 
 		public ObservableCollection<IWindowListItem> WindowList { get; private set; } = new ObservableCollection<IWindowListItem>();
 	}

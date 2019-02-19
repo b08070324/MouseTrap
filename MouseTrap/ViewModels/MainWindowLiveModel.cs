@@ -1,4 +1,5 @@
-﻿using MouseTrap.Models;
+﻿using MouseTrap.Data;
+using MouseTrap.Models;
 using System;
 using System.ComponentModel;
 
@@ -6,22 +7,43 @@ namespace MouseTrap.ViewModels
 {
 	public class MainWindowLiveModel : MainWindowViewModel
 	{
+		// Services
 		private IApplicationSystem ApplicationSystem { get; set; }
+		private Func<WindowListViewModel> WindowListViewModelFactory { get; set; }
+		private Func<FindProgramViewModel> FindProgramViewModelFactory { get; set; }
+		private Func<LockWindowViewModel> LockWindowViewModelFactory { get; set; }
+
+		// Properties
 		private string ProcessPath { get; set; }
 		private uint ProcessId { get; set; }
 		private IntPtr Handle { get; set; }
+
+		// Derived properties
 		private bool TargetingSpecificWindow => (ProcessPath != null && ProcessId != 0 && Handle != default);
 		private bool TargetingProgramPath => (ProcessPath != null && ProcessId == 0 && Handle == default);
 
-		public MainWindowLiveModel()
+		public MainWindowLiveModel(
+			IApplicationSystem applicationSystem, 
+			Func<WindowListViewModel> windowListViewModelFactory,
+			Func<FindProgramViewModel> findProgramViewModelFactory,
+			Func<LockWindowViewModel> lockWindowViewModelFactory,
+			Func<ToolBarViewModel> toolBarViewModelFactory)
 		{
-			ApplicationSystem = ApplicationSystemFactory.GetApplicationSystem();
+			// System
+			ApplicationSystem = applicationSystem;
 			ApplicationSystem.ApplicationState.WatchingCancelled += ApplicationState_WatchingCancelled;
 
-			ToolBarViewModel = new ToolBarLiveModel();
+			// Factories
+			WindowListViewModelFactory = windowListViewModelFactory;
+			FindProgramViewModelFactory = findProgramViewModelFactory;
+			LockWindowViewModelFactory = lockWindowViewModelFactory;
+
+			// Toolbar
+			ToolBarViewModel = toolBarViewModelFactory();
 			ToolBarViewModel.PropertyChanged += ToolBarViewModel_PropertyChanged;
 			ToolBarViewModel.RefreshButtonClicked += ToolBarViewModel_RefreshButtonClicked;
 
+			// Initialise
 			SetCurrentView(ViewType.WindowList);
 		}
 
@@ -71,7 +93,7 @@ namespace MouseTrap.ViewModels
 		private void SetWindowList()
 		{
 			// Create view model
-			var windowListLiveModel = new WindowListLiveModel();
+			var windowListLiveModel = WindowListViewModelFactory();
 			if (TargetingSpecificWindow) windowListLiveModel.SelectedWindow = new WindowListItem { ProcessId = ProcessId };
 			windowListLiveModel.RefreshList();
 			windowListLiveModel.PropertyChanged += WindowListLiveModel_PropertyChanged;
@@ -86,7 +108,7 @@ namespace MouseTrap.ViewModels
 		private void SetFindProgram()
 		{
 			// Create view model
-			var findProgramLiveModel = new FindProgramLiveModel();
+			var findProgramLiveModel = FindProgramViewModelFactory();
 			if (TargetingProgramPath) findProgramLiveModel.Filename = ProcessPath;
 			findProgramLiveModel.PropertyChanged += FindProgramLiveModel_PropertyChanged;
 
@@ -100,7 +122,7 @@ namespace MouseTrap.ViewModels
 		private void SetLockWindow()
 		{
 			// Create view model
-			var lockWindowLiveModel = new LockWindowLiveModel(ApplicationSystem.TargetWindowDetails);
+			var lockWindowLiveModel = LockWindowViewModelFactory();
 			lockWindowLiveModel.ProcessPath = ProcessPath;
 
 			// Set view model
