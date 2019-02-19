@@ -67,6 +67,12 @@ namespace MouseTrap.Models
 			PaddingUpdated?.Invoke(this, EventArgs.Empty);
 		}
 
+		public void SetPadding(double left, double top, double right, double bottom)
+		{
+			SetPadding(new Dimensions { Left = left, Top = top, Right = right, Bottom = bottom });
+		}
+
+
 		public event EventHandler WatchingProgramPath;
 		public event EventHandler WatchingSpecificWindow;
 		public event EventHandler<WatchingCancelledEventArgs> WatchingCancelled;
