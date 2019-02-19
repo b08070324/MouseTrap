@@ -100,6 +100,7 @@
     <Compile Include="ViewModels\LockWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\ToolBarViewModel.cs" />
+    <Compile Include="Models\WindowListItem.cs" />
     <Compile Include="ViewModels\WindowListLiveModel.cs" />
     <Compile Include="ViewModels\WindowListViewModel.cs" />
     <Compile Include="Views\AppToolBar.xaml.cs">

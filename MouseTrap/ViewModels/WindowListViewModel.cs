@@ -1,11 +1,28 @@
 ﻿using MouseTrap.Models;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace MouseTrap.ViewModels
 {
-	public abstract class WindowListViewModel : IViewModel
+	public abstract class WindowListViewModel : IViewModel, INotifyPropertyChanged
 	{
-		public IList<IWindowListItem> WindowList { get; protected set; }
-		public IWindowListItem SelectedWindow { get; set; }
+		private IWindowListItem _selectedWindow;
+
+		public IWindowListItem SelectedWindow
+		{
+			get => _selectedWindow;
+			set
+			{
+				if (value != _selectedWindow)
+				{
+					_selectedWindow = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedWindow)));
+				}
+			}
+		}
+
+		public ObservableCollection<IWindowListItem> WindowList { get; private set; } = new ObservableCollection<IWindowListItem>();
+
+		public event PropertyChangedEventHandler PropertyChanged;
 	}
 }

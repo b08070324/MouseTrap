@@ -1,6 +1,4 @@
 ﻿using MouseTrap.Models;
-using System.Collections.Generic;
-using System.Windows.Media.Imaging;
 
 namespace MouseTrap.ViewModels
 {
@@ -8,25 +6,11 @@ namespace MouseTrap.ViewModels
 	{
 		public WindowListDesignModel()
 		{
-			WindowList = new List<IWindowListItem>
-			{
-				new DesignWindowListItem(),
-				new DesignWindowListItem(),
-				new DesignWindowListItem()
-			};
+			WindowList.Add(new WindowListItem { ProcessId = 123, ProcessPath = @"c:\windows\system32\notepad.exe", Title = "This is a test title", Width = 1920, Height = 1280 });
+			WindowList.Add(new WindowListItem { ProcessId = 123, ProcessPath = @"c:\windows\system32\notepad.exe", Title = "This is a test title", Width = 1920, Height = 1280 });
+			WindowList.Add(new WindowListItem { ProcessId = 123, ProcessPath = @"c:\windows\system32\notepad.exe", Title = "This is a test title", Width = 1920, Height = 1280 });
 
 			SelectedWindow = WindowList[1];
-		}
-
-		private class DesignWindowListItem : IWindowListItem
-		{
-			public uint ProcessId => 123;
-			public string ProcessPath => @"c:\windows\system32\notepad.exe";
-			public string ShortPath => "notepad.exe";
-			public BitmapSource ProcessIcon => WindowIcon.GetIcon(ProcessPath);
-			public string Title => "This is a test title";
-			public double Width => 1920;
-			public double Height => 1280;
 		}
 	}
 }

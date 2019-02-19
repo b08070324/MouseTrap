@@ -11,8 +11,11 @@ namespace MouseTrap.ViewModels
 			get => _currentViewModel;
 			set
 			{
-				_currentViewModel = value;
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentViewModel)));
+				if (value != _currentViewModel)
+				{
+					_currentViewModel = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentViewModel)));
+				}
 			} 
 		}
 

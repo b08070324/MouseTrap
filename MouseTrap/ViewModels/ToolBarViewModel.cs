@@ -15,8 +15,11 @@ namespace MouseTrap.ViewModels
 			get => _windowLockEnabled;
 			set
 			{
-				_windowLockEnabled = value;
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WindowLockEnabled)));
+				if (value != _windowLockEnabled)
+				{
+					_windowLockEnabled = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WindowLockEnabled)));
+				}
 			}
 		}
 
@@ -25,8 +28,11 @@ namespace MouseTrap.ViewModels
 			get => _currentView;
 			set
 			{
-				_currentView = value;
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentView)));
+				if (value != _currentView)
+				{
+					_currentView = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentView)));
+				}
 			}
 		}
 
