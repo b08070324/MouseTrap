@@ -17,9 +17,11 @@ namespace MouseTrap.Hooks
 
 	internal class MouseHook : IMouseHook
 	{
+		private IntPtr _mouseHookPtr;
+
 		private bool IsDisposed { get; set; } = false;
 		private HookProc MouseHookCallback { get; }
-		private IntPtr MouseHookPtr { get; set; }
+		private IntPtr MouseHookPtr { get => _mouseHookPtr; set => _mouseHookPtr = value; }
 		private Dimensions Boundaries { get; }
 		private bool IsRestricted { get; set; }
 
@@ -37,8 +39,16 @@ namespace MouseTrap.Hooks
 				// Set region
 				SetRegion(region);
 
-				// Set hook
-				MouseHookPtr = NativeMethods.SetWindowsHookEx(HookType.WH_MOUSE_LL, MouseHookCallback, IntPtr.Zero, 0);
+				// Set hook, using field to avoid issues with GetLastWin32Error
+				_mouseHookPtr = NativeMethods.SetWindowsHookEx(HookType.WH_MOUSE_LL, MouseHookCallback, IntPtr.Zero, 0);
+				var errorCode = Marshal.GetLastWin32Error();
+
+				// TODO improve error handling
+				if (MouseHookPtr == IntPtr.Zero)
+				{
+					string errorMessage = new Win32Exception(errorCode).Message;
+					WriteLine($"{errorCode} {errorMessage}");
+				}
 			}
 		}
 
@@ -75,7 +85,7 @@ namespace MouseTrap.Hooks
 		{
 			// Only handle WM_MOUSEMOVE messages
 			var isMouseMoveMsg = (wParam.ToInt32() == 0x0200); // #define WM_MOUSEMOVE 0x0200
-			
+
 			// Check if message should be handled
 			if (IsRestricted && isMouseMoveMsg && code >= 0 && BoundaryIsValid)
 			{
