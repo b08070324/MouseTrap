@@ -52,7 +52,7 @@ namespace MouseTrap.Models
 
 		public void CancelWatch(bool windowWasClosed = false)
 		{
-			if (Handle != default)
+			if (ProcessPath != default || Handle != default)
 			{
 				Handle = default;
 				ProcessId = default;
