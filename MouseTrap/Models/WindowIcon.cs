@@ -7,12 +7,16 @@ namespace MouseTrap.Models
 {
 	public static class WindowIcon
 	{
-		private static readonly BitmapImage defaultIcon = new BitmapImage(
-			new Uri("/MouseTrap;component/Resources/AppIcon.ico", UriKind.Relative));
+		private static readonly BitmapImage DefaultIcon;
+
+		static WindowIcon()
+		{
+			DefaultIcon = new BitmapImage(new Uri("/MouseTrap;component/Resources/DefaultListIcon.png", UriKind.Relative));
+		}
 
 		public static BitmapSource GetIcon(string processPath)
 		{
-			BitmapSource result = defaultIcon;
+			BitmapSource result = DefaultIcon;
 
 			if (processPath != null && processPath.Length > 0 && System.IO.File.Exists(processPath))
 			{
