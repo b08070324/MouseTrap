@@ -11,7 +11,6 @@ namespace MouseTrap.ViewModels
 		public WindowListLiveModel()
 		{
 			Catalogue = new WindowCatalogue();
-			RefreshList();
 		}
 
 		public void RefreshList()
@@ -25,6 +24,7 @@ namespace MouseTrap.ViewModels
 			{
 				WindowList.Add(new WindowListItem
 				{
+					Handle = window.Handle,
 					ProcessId = window.ProcessId,
 					ProcessPath = window.ProcessPath,
 					Title = window.Title,

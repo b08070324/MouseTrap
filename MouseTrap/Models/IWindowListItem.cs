@@ -1,15 +1,17 @@
-﻿using System.Windows.Media.Imaging;
+﻿using System;
+using System.Windows.Media.Imaging;
 
 namespace MouseTrap.Models
 {
 	public interface IWindowListItem
 	{
-		BitmapSource ProcessIcon { get; }
+		IntPtr Handle { get; }
 		uint ProcessId { get; }
-		string Title { get; }
 		string ProcessPath { get; }
-		string ShortPath { get; }
+		string Title { get; }
 		double Width { get; }
 		double Height { get; }
+		string ShortPath { get; }
+		BitmapSource ProcessIcon { get; }
 	}
 }

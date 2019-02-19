@@ -2,12 +2,16 @@
 using System;
 using System.ComponentModel;
 
-using static System.Diagnostics.Debug;
-
 namespace MouseTrap.ViewModels
 {
 	public class MainWindowLiveModel : MainWindowViewModel
 	{
+		private string ProcessPath { get; set; }
+		private uint ProcessId { get; set; }
+		private IntPtr Handle { get; set; }
+		private bool TargetingSpecificWindow => (ProcessPath != null && ProcessId != 0 && Handle != default);
+		private bool TargetingProgramPath => (ProcessPath != null && ProcessId == 0 && Handle == default);
+
 		public MainWindowLiveModel()
 		{
 			ToolBarViewModel = new ToolBarLiveModel();
@@ -22,23 +26,67 @@ namespace MouseTrap.ViewModels
 			switch (viewType)
 			{
 				case ViewType.WindowList:
-					var windowListLiveModel = new WindowListLiveModel();
-					windowListLiveModel.PropertyChanged += WindowListLiveModel_PropertyChanged;
-					CurrentViewModel = windowListLiveModel;
-					ToolBarViewModel.WindowLockEnabled = false;
+					SetWindowList();
 					break;
 				case ViewType.FindProgram:
-					var findProgramLiveModel = new FindProgramLiveModel();
-					findProgramLiveModel.PropertyChanged += FindProgramLiveModel_PropertyChanged;
-					CurrentViewModel = findProgramLiveModel;
-					ToolBarViewModel.WindowLockEnabled = false;
+					SetFindProgram();
 					break;
 				case ViewType.LockWindow:
-					CurrentViewModel = new LockWindowLiveModel();
+					SetLockWindow();
 					break;
 				default:
 					break;
 			}
+		}
+
+		private void SetWindowList()
+		{
+			// Create view model
+			var windowListLiveModel = new WindowListLiveModel();
+			if (TargetingSpecificWindow) windowListLiveModel.SelectedWindow = new WindowListItem { ProcessId = ProcessId };
+			windowListLiveModel.RefreshList();
+			windowListLiveModel.PropertyChanged += WindowListLiveModel_PropertyChanged;
+
+			// Set view model
+			CurrentViewModel = windowListLiveModel;
+
+			// Update toolbar
+			ToolBarViewModel.WindowLockEnabled = TargetingSpecificWindow;
+		}
+
+		private void SetFindProgram()
+		{
+			// Create view model
+			var findProgramLiveModel = new FindProgramLiveModel();
+			if (TargetingProgramPath) findProgramLiveModel.Filename = ProcessPath;
+			findProgramLiveModel.PropertyChanged += FindProgramLiveModel_PropertyChanged;
+
+			// Set view model
+			CurrentViewModel = findProgramLiveModel;
+
+			// Update toolbar
+			ToolBarViewModel.WindowLockEnabled = TargetingProgramPath;
+		}
+
+		private void SetLockWindow()
+		{
+			// Create view model
+			var lockWindowLiveModel = new LockWindowLiveModel
+			{
+				ProcessPath = ProcessPath
+			};
+
+			// Set view model
+			CurrentViewModel = lockWindowLiveModel;
+		}
+
+		// Stores copy of target window details to be sent to system
+		private void UpdateTargetWindowDetails(string processPath = null, uint processId = 0, IntPtr handle = default)
+		{
+			ProcessPath = processPath;
+			ProcessId = processId;
+			Handle = handle;
+			ToolBarViewModel.WindowLockEnabled = (TargetingSpecificWindow || TargetingProgramPath);
 		}
 
 		// Triggered when toolbar interaction changes its selected ViewType
@@ -68,13 +116,13 @@ namespace MouseTrap.ViewModels
 				{
 					if (windowListLiveModel.SelectedWindow != null)
 					{
-						WriteLine($"{windowListLiveModel.SelectedWindow.Title}");
-						ToolBarViewModel.WindowLockEnabled = true;
+						UpdateTargetWindowDetails(windowListLiveModel.SelectedWindow.ProcessPath,
+							windowListLiveModel.SelectedWindow.ProcessId,
+							windowListLiveModel.SelectedWindow.Handle);
 					}
 					else
 					{
-						WriteLine($"Window deselected");
-						ToolBarViewModel.WindowLockEnabled = false;
+						UpdateTargetWindowDetails();
 					}
 				}
 			}
@@ -89,13 +137,11 @@ namespace MouseTrap.ViewModels
 				{
 					if (findProgramLiveModel.IsFilenameValid)
 					{
-						WriteLine($"{findProgramLiveModel.Filename}");
-						ToolBarViewModel.WindowLockEnabled = true;
+						UpdateTargetWindowDetails(findProgramLiveModel.Filename);
 					}
 					else
 					{
-						WriteLine($"Filename invalidated");
-						ToolBarViewModel.WindowLockEnabled = false;
+						UpdateTargetWindowDetails();
 					}
 				}
 			}
