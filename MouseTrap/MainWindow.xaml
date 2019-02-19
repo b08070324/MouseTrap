@@ -5,10 +5,10 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:models="clr-namespace:MouseTrap.ViewModels"
-		xmlns:dmodels="clr-namespace:MouseTrap.DesignModels"
 		xmlns:views="clr-namespace:MouseTrap.Views"
+		xmlns:viewmodels="clr-namespace:MouseTrap.ViewModels"
 		mc:Ignorable="d"
-		d:DataContext="{d:DesignInstance dmodels:MainWindowDesignModel, IsDesignTimeCreatable=True}"
+		d:DataContext="{d:DesignInstance viewmodels:MainWindowDesignModel, IsDesignTimeCreatable=True}"
 		Title="Mouse Trap" ResizeMode="CanMinimize" Width="500" Height="350" WindowStartupLocation="CenterScreen" MinWidth="500" MinHeight="350" IsTabStop="False">
 	<Window.Resources>
 		<DataTemplate DataType="{x:Type models:ToolBarViewModel}">

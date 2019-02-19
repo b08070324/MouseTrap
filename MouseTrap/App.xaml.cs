@@ -1,5 +1,4 @@
-﻿using MouseTrap.Foundation;
-using MouseTrap.Models;
+﻿using MouseTrap.ViewModels;
 using System.Windows;
 
 namespace MouseTrap
@@ -9,9 +8,19 @@ namespace MouseTrap
 	/// </summary>
 	public partial class App : Application
 	{
+		private MainWindowViewModel MainWindowViewModel { get; set; }
+
 		public App()
 		{
-			this.Exit += App_Exit;
+			Startup += App_Startup;
+			Exit += App_Exit;
+		}
+
+		private void App_Startup(object sender, StartupEventArgs e)
+		{
+			MainWindowViewModel = new MainWindowLiveModel();
+			var mainWindow = new MainWindow(MainWindowViewModel);
+			mainWindow.Show();
 		}
 
 		private void App_Exit(object sender, ExitEventArgs e)

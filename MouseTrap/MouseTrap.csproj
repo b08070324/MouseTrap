@@ -82,55 +82,25 @@
     <Compile Include="Controls\WindowListDetails.xaml.cs">
       <DependentUpon>WindowListDetails.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DesignModels\WindowItemDesignModel.cs" />
-    <Compile Include="Foundation\ApplicationState.cs" />
-    <Compile Include="Foundation\ConcreteMediator.cs" />
-    <Compile Include="Foundation\ConcreteMediatorFactory.cs" />
-    <Compile Include="Foundation\DesignMediator.cs" />
-    <Compile Include="Foundation\MediatorEventLog.cs" />
-    <Compile Include="Hooks\MediatedForegroundHook.cs" />
-    <Compile Include="Hooks\MediatedMouseHook.cs" />
-    <Compile Include="Hooks\MediatedWindowClosedHook.cs" />
-    <Compile Include="Hooks\MediatedWindowUpdateHook.cs" />
-    <Compile Include="Hooks\MouseHook.cs" />
-    <Compile Include="Hooks\WindowClosedHook.cs" />
-    <Compile Include="Hooks\WindowRectEventArgs.cs" />
-    <Compile Include="Hooks\WindowTitleEventArgs.cs" />
-    <Compile Include="Hooks\WindowUpdateHook.cs" />
-    <Compile Include="Interop\WinEventHook.cs" />
-    <Compile Include="Interop\HookType.cs" />
-    <Compile Include="Interop\MSLLHOOKSTRUCT.cs" />
-    <Compile Include="Interop\Point.cs" />
-    <Compile Include="Models\Dimensions.cs" />
-    <Compile Include="Models\WindowItemUpdateDetails.cs" />
-    <Compile Include="WindowQuery\DesignWindowQueryManager.cs" />
-    <Compile Include="WindowQuery\IWindowQueryManager.cs" />
-    <Compile Include="Hooks\ForegroundHook.cs" />
-    <Compile Include="Hooks\ForegroundHookEventArgs.cs" />
-    <Compile Include="Foundation\IMediator.cs" />
-    <Compile Include="DesignModels\FindProgramDesignModel.cs" />
-    <Compile Include="DesignModels\LockWindowDesignModel.cs" />
-    <Compile Include="DesignModels\MainWindowDesignModel.cs" />
-    <Compile Include="DesignModels\ToolBarDesignModel.cs" />
-    <Compile Include="DesignModels\WindowListDesignModel.cs" />
-    <Compile Include="WindowQuery\WindowQueryManager.cs" />
-    <Compile Include="Interop\GWL.cs" />
-    <Compile Include="Interop\ProcessAccessFlags.cs" />
-    <Compile Include="Interop\Win32Rect.cs" />
-    <Compile Include="Interop\Win32Interop.cs" />
-    <Compile Include="Interop\WinEventHookEventArgs.cs" />
-    <Compile Include="Interop\WindowStyles.cs" />
-    <Compile Include="Interop\WindowStylesEx.cs" />
-    <Compile Include="Interop\WinEventConstant.cs" />
+    <Compile Include="ViewModels\FindProgramDesignModel.cs" />
+    <Compile Include="ViewModels\FindProgramLiveModel.cs" />
+    <Compile Include="ViewModels\LockWindowDesignModel.cs" />
+    <Compile Include="ViewModels\LockWindowLiveModel.cs" />
+    <Compile Include="ViewModels\MainWindowDesignModel.cs" />
+    <Compile Include="Models\IWindowListItem.cs" />
+    <Compile Include="ViewModels\MainWindowLiveModel.cs" />
+    <Compile Include="ViewModels\ToolBarDesignModel.cs" />
+    <Compile Include="ViewModels\ToolBarLiveModel.cs" />
+    <Compile Include="ViewModels\WindowListDesignModel.cs" />
     <Compile Include="Models\ViewType.cs" />
-    <Compile Include="Models\IWindowItem.cs" />
     <Compile Include="Models\WindowIcon.cs" />
-    <Compile Include="ViewModels\ToolBarViewModel.cs" />
-    <Compile Include="ViewModels\FindProgramViewModel.cs" />
-    <Compile Include="ViewModels\LockWindowViewModel.cs" />
-    <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="Binding\RelayCommand.cs" />
-    <Compile Include="Models\WindowItem.cs" />
+    <Compile Include="ViewModels\FindProgramViewModel.cs" />
+    <Compile Include="ViewModels\IViewModel.cs" />
+    <Compile Include="ViewModels\LockWindowViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\ToolBarViewModel.cs" />
+    <Compile Include="ViewModels\WindowListLiveModel.cs" />
     <Compile Include="ViewModels\WindowListViewModel.cs" />
     <Compile Include="Views\AppToolBar.xaml.cs">
       <DependentUpon>AppToolBar.xaml</DependentUpon>
@@ -219,6 +189,14 @@
   <ItemGroup>
     <Resource Include="Resources\AppIcon.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="DesignModels\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MouseTrap.System\MouseTrap.System.csproj">
+      <Project>{f665dbab-612e-41f0-beeb-71db5eda976c}</Project>
+      <Name>MouseTrap.System</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

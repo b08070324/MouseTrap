@@ -5,11 +5,9 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 		xmlns:binding="clr-namespace:MouseTrap.Binding"
 		xmlns:models="clr-namespace:MouseTrap.Models"
-		xmlns:dmodels="clr-namespace:MouseTrap.DesignModels"
 		xmlns:controls="clr-namespace:MouseTrap.Controls"
 		IsTabStop="False"
 		mc:Ignorable="d" 
-		d:DataContext="{d:DesignInstance dmodels:ToolBarDesignModel, IsDesignTimeCreatable=True}"
 		d:DesignHeight="100" d:DesignWidth="600" Background="{DynamicResource Main.Background}">
 	<UserControl.Resources>
 		<ResourceDictionary>

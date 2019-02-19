@@ -10,12 +10,12 @@ namespace MouseTrap.Binding
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			var dimensions = (Dimensions)value;
+			var dimensions = (double[])value;
 
-			double left = GetMargin(dimensions.Left);
-			double right = GetMargin(dimensions.Right);
-			double top = GetMargin(dimensions.Top);
-			double bottom = GetMargin(dimensions.Bottom);
+			double left = GetMargin(dimensions[0]);
+			double right = GetMargin(dimensions[1]);
+			double top = GetMargin(dimensions[2]);
+			double bottom = GetMargin(dimensions[3]);
 
 			return new Thickness(left, top, right, bottom);
 		}

@@ -4,7 +4,6 @@
 	{
 		WindowList,
 		FindProgram,
-		LockWindow,
-		PreviousView
+		LockWindow
 	}
 }

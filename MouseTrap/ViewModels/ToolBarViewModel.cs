@@ -1,114 +1,46 @@
-﻿using System.ComponentModel;
+﻿using MouseTrap.Models;
+using System;
+using System.ComponentModel;
 using System.Windows.Input;
-using MouseTrap.Binding;
-using MouseTrap.Foundation;
-using MouseTrap.Models;
 
 namespace MouseTrap.ViewModels
 {
-	public class ToolBarViewModel : BaseViewModel
+	public abstract class ToolBarViewModel : IViewModel, INotifyPropertyChanged
 	{
-		public ToolBarViewModel(IMediator mediator) : base(mediator)
-		{
-			_mediator.PropertyChanged += Mediator_PropertyChanged;
+		private bool _windowLockEnabled;
+		private ViewType _currentView;
 
-			// Commands for view
-			ChooseWindowCommand = new RelayCommand(x => ShowWindowList(), x => ShowWindowListCanExecute);
-			FindProgramCommand = new RelayCommand(x => ShowFindProgram(), x => ShowFindProgramCanExecute);
-			ToggleLockCommand = new RelayCommand(x => ToggleLock(), x => ToggleLockCanExecute);
-			RefreshListCommand = new RelayCommand(x => RefreshList(), x => true);
-		}
-
-		private void Mediator_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		public bool WindowLockEnabled
 		{
-			if (e.PropertyName == nameof(IMediator.CurrentView))
+			get => _windowLockEnabled;
+			set
 			{
-				Mediator_OnViewChanged();
+				_windowLockEnabled = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WindowLockEnabled)));
 			}
-		}
-
-		public void Mediator_OnViewChanged()
-		{
-			RaiseEvent(nameof(LockState));
-			RaiseEvent(nameof(CurrentView));
-		}
-
-		// View state properties
-		public virtual bool LockState
-		{
-			get => _mediator.CurrentView == ViewType.LockWindow;
 		}
 
 		public ViewType CurrentView
 		{
-			get => _mediator.CurrentView;
-		}
-
-		// Commands
-		public ICommand ChooseWindowCommand { get; protected set; }
-		public ICommand FindProgramCommand { get; protected set; }
-		public ICommand ToggleLockCommand { get; protected set; }
-		public ICommand RefreshListCommand { get; protected set; }
-
-		protected void ShowWindowList()
-		{
-			_mediator.SetCurrentView(ViewType.WindowList);
-		}
-
-		protected void ShowFindProgram()
-		{
-			_mediator.SetCurrentView(ViewType.FindProgram);
-		}
-
-		protected void ToggleLock()
-		{
-			if (_mediator.CurrentView == ViewType.LockWindow)
+			get => _currentView;
+			set
 			{
-				_mediator.SetCurrentView(ViewType.PreviousView);
-			}
-			else
-			{
-				_mediator.SetCurrentView(ViewType.LockWindow);
+				_currentView = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentView)));
 			}
 		}
 
-		protected void RefreshList()
+		public ICommand ChooseWindowCommand { get; set; }
+		public ICommand FindProgramCommand { get; set; }
+		public ICommand ToggleLockCommand { get; set; }
+		public ICommand RefreshListCommand { get; set; }
+
+		public event PropertyChangedEventHandler PropertyChanged;
+		public event EventHandler RefreshButtonClicked;
+
+		protected void OnRefreshButtonClicked()
 		{
-			_mediator.RefreshWindowList();
-		}
-
-		protected bool ShowWindowListCanExecute
-		{
-			get => _mediator.CurrentView == ViewType.FindProgram;
-		}
-
-		protected bool ShowFindProgramCanExecute
-		{
-			get => _mediator.CurrentView == ViewType.WindowList;
-		}
-
-		protected bool ToggleLockCanExecute
-		{
-			get
-			{
-				// Always allow unlock
-				if (_mediator.CurrentView == ViewType.LockWindow) return true;
-
-				// Need full details to lock from WindowListView
-				if (_mediator.CurrentView == ViewType.WindowList)
-				{
-					return _mediator.TargetWindow != null && _mediator.TargetWindow.IsValid;
-				}
-
-				// Only need path to match from FindProgramView
-				if (_mediator.CurrentView == ViewType.FindProgram)
-				{
-					return _mediator.TargetWindow != null && _mediator.TargetWindow.IsPathValid;
-				}
-
-				// Default state
-				return false;
-			}
+			RefreshButtonClicked?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }
