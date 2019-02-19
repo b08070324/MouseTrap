@@ -41,7 +41,7 @@ namespace MouseTrap.Models
 
 		public void WatchForSpecificWindow(IntPtr handle)
 		{
-			if (Handle == default)
+			if (Handle == default && NativeMethods.IsWindow(handle))
 			{
 				Handle = handle;
 				NativeMethods.GetWindowThreadProcessId(handle, out _processId);
@@ -52,13 +52,10 @@ namespace MouseTrap.Models
 
 		public void CancelWatch(bool windowWasClosed = false)
 		{
-			if (ProcessPath != default || Handle != default)
-			{
-				Handle = default;
-				ProcessId = default;
-				ProcessPath = default;
-				WatchingCancelled?.Invoke(this, new WatchingCancelledEventArgs { WindowWasClosed = windowWasClosed });
-			}
+			Handle = default;
+			ProcessId = default;
+			ProcessPath = default;
+			WatchingCancelled?.Invoke(this, new WatchingCancelledEventArgs { WindowWasClosed = windowWasClosed });
 		}
 
 		public void SetPadding(Dimensions padding)

@@ -43,6 +43,9 @@ namespace MouseTrap.Interop
 		internal static extern bool GetWindowRect(IntPtr hWnd, out Win32Rect lpRect);
 
 		[DllImport("user32.dll")]
+		public static extern bool IsWindow(IntPtr hWnd);
+
+		[DllImport("user32.dll")]
 		internal static extern bool IsWindowVisible(IntPtr hWnd);
 
 		[DllImport("user32.dll")]

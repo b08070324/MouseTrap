@@ -17,10 +17,7 @@ namespace MouseTrap.ViewModels
 		private string ProcessPath { get; set; }
 		private uint ProcessId { get; set; }
 		private IntPtr Handle { get; set; }
-
-		// Derived properties
-		private bool TargetingSpecificWindow => (ProcessPath != null && ProcessId != 0 && Handle != default);
-		private bool TargetingProgramPath => (ProcessPath != null && ProcessId == 0 && Handle == default);
+		private bool TargetingSpecificWindow { get; set; }
 
 		public MainWindowLiveModel(
 			IApplicationSystem applicationSystem, 
@@ -44,13 +41,13 @@ namespace MouseTrap.ViewModels
 			ToolBarViewModel.RefreshButtonClicked += ToolBarViewModel_RefreshButtonClicked;
 
 			// Initialise
-			SetCurrentView(ViewType.WindowList);
+			SetWindowList();
 		}
 
 		private void StartWatch()
 		{
-			if (TargetingSpecificWindow) ApplicationSystem.ApplicationState.WatchForSpecificWindow(Handle);
-			else if (TargetingProgramPath) ApplicationSystem.ApplicationState.WatchForProgramPath(ProcessPath);
+			if (TargetingSpecificWindow && Handle != default) ApplicationSystem.ApplicationState.WatchForSpecificWindow(Handle);
+			else if (!TargetingSpecificWindow && ProcessPath != default) ApplicationSystem.ApplicationState.WatchForProgramPath(ProcessPath);
 		}
 
 		private void StopWatch()
@@ -67,55 +64,35 @@ namespace MouseTrap.ViewModels
 			}
 		}
 
-		// Changes the view by creating and setting the corresponding view model
-		private void SetCurrentView(ViewType viewType)
-		{
-			switch (viewType)
-			{
-				case ViewType.WindowList:
-					StopWatch();
-					SetWindowList();
-					break;
-				case ViewType.FindProgram:
-					StopWatch();
-					SetFindProgram();
-					break;
-				case ViewType.LockWindow:
-					StartWatch();
-					SetLockWindow();
-					break;
-				default:
-					break;
-			}
-		}
-
 		private void SetWindowList()
 		{
 			// Create view model
 			var windowListLiveModel = WindowListViewModelFactory();
-			if (TargetingSpecificWindow) windowListLiveModel.SelectedWindow = new WindowListItem { ProcessId = ProcessId };
+			if (ProcessId != default) windowListLiveModel.SelectedWindow = new WindowListItem { ProcessId = ProcessId };
 			windowListLiveModel.RefreshList();
 			windowListLiveModel.PropertyChanged += WindowListLiveModel_PropertyChanged;
 
 			// Set view model
 			CurrentViewModel = windowListLiveModel;
 
-			// Update toolbar
-			ToolBarViewModel.WindowLockEnabled = TargetingSpecificWindow;
+			// Update state
+			TargetingSpecificWindow = true;
+			ToolBarViewModel.WindowLockEnabled = (ProcessId != default);
 		}
 
 		private void SetFindProgram()
 		{
 			// Create view model
 			var findProgramLiveModel = FindProgramViewModelFactory();
-			if (TargetingProgramPath) findProgramLiveModel.Filename = ProcessPath;
+			if (ProcessPath != default) findProgramLiveModel.Filename = ProcessPath;
 			findProgramLiveModel.PropertyChanged += FindProgramLiveModel_PropertyChanged;
 
 			// Set view model
 			CurrentViewModel = findProgramLiveModel;
 
-			// Update toolbar
-			ToolBarViewModel.WindowLockEnabled = TargetingProgramPath;
+			// Update state
+			TargetingSpecificWindow = false;
+			ToolBarViewModel.WindowLockEnabled = (ProcessPath != default);
 		}
 
 		private void SetLockWindow()
@@ -129,12 +106,12 @@ namespace MouseTrap.ViewModels
 		}
 
 		// Stores copy of target window details to be sent to system
-		private void UpdateTargetWindowDetails(string processPath = null, uint processId = 0, IntPtr handle = default)
+		private void UpdateTargetWindowDetails(string processPath = default, uint processId = default, IntPtr handle = default)
 		{
 			ProcessPath = processPath;
 			ProcessId = processId;
 			Handle = handle;
-			ToolBarViewModel.WindowLockEnabled = (TargetingSpecificWindow || TargetingProgramPath);
+			ToolBarViewModel.WindowLockEnabled = (ProcessId != default || ProcessPath != default);
 		}
 
 		// Triggered when toolbar interaction changes its selected ViewType
@@ -142,7 +119,23 @@ namespace MouseTrap.ViewModels
 		{
 			if (e.PropertyName == nameof(ToolBarViewModel.CurrentView))
 			{
-				SetCurrentView(ToolBarViewModel.CurrentView);
+				switch (ToolBarViewModel.CurrentView)
+				{
+					case ViewType.WindowList:
+						StopWatch();
+						SetWindowList();
+						break;
+					case ViewType.FindProgram:
+						StopWatch();
+						SetFindProgram();
+						break;
+					case ViewType.LockWindow:
+						StartWatch();
+						SetLockWindow();
+						break;
+					default:
+						break;
+				}
 			}
 		}
 
