@@ -6,6 +6,7 @@ namespace MouseTrap.ViewModels
 {
 	public class MainWindowLiveModel : MainWindowViewModel
 	{
+		private IApplicationSystem ApplicationSystem { get; set; }
 		private string ProcessPath { get; set; }
 		private uint ProcessId { get; set; }
 		private IntPtr Handle { get; set; }
@@ -14,10 +15,35 @@ namespace MouseTrap.ViewModels
 
 		public MainWindowLiveModel()
 		{
+			ApplicationSystem = ApplicationSystemFactory.GetApplicationSystem();
+			ApplicationSystem.ApplicationState.WatchingCancelled += ApplicationState_WatchingCancelled;
+
 			ToolBarViewModel = new ToolBarLiveModel();
 			ToolBarViewModel.PropertyChanged += ToolBarViewModel_PropertyChanged;
 			ToolBarViewModel.RefreshButtonClicked += ToolBarViewModel_RefreshButtonClicked;
+
 			SetCurrentView(ViewType.WindowList);
+		}
+
+		private void StartWatch()
+		{
+			if (TargetingSpecificWindow) ApplicationSystem.ApplicationState.WatchForSpecificWindow(Handle);
+			else if (TargetingProgramPath) ApplicationSystem.ApplicationState.WatchForProgramPath(ProcessPath);
+		}
+
+		private void StopWatch()
+		{
+			ApplicationSystem.ApplicationState.CancelWatch();
+		}
+
+		private void ApplicationState_WatchingCancelled(object sender, WatchingCancelledEventArgs e)
+		{
+			// If the window was closed clear target details
+			if (e.WindowWasClosed)
+			{
+				UpdateTargetWindowDetails();
+				if (ToolBarViewModel is ToolBarLiveModel toolBarLiveModel) toolBarLiveModel.ToggleLockWindow();
+			}
 		}
 
 		// Changes the view by creating and setting the corresponding view model
@@ -26,12 +52,15 @@ namespace MouseTrap.ViewModels
 			switch (viewType)
 			{
 				case ViewType.WindowList:
+					StopWatch();
 					SetWindowList();
 					break;
 				case ViewType.FindProgram:
+					StopWatch();
 					SetFindProgram();
 					break;
 				case ViewType.LockWindow:
+					StartWatch();
 					SetLockWindow();
 					break;
 				default:
@@ -71,10 +100,8 @@ namespace MouseTrap.ViewModels
 		private void SetLockWindow()
 		{
 			// Create view model
-			var lockWindowLiveModel = new LockWindowLiveModel
-			{
-				ProcessPath = ProcessPath
-			};
+			var lockWindowLiveModel = new LockWindowLiveModel(ApplicationSystem.TargetWindowDetails);
+			lockWindowLiveModel.ProcessPath = ProcessPath;
 
 			// Set view model
 			CurrentViewModel = lockWindowLiveModel;

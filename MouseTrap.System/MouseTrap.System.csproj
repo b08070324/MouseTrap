@@ -80,6 +80,7 @@
     <Compile Include="Models\ITargetWindowDetails.cs" />
     <Compile Include="Models\IWindow.cs" />
     <Compile Include="Models\TargetWindowDetails.cs" />
+    <Compile Include="Models\WatchingCancelledEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

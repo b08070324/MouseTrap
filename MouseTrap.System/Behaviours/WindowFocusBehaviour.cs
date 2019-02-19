@@ -1,6 +1,8 @@
 ﻿using MouseTrap.Hooks;
 using MouseTrap.Models;
 
+using static System.Diagnostics.Debug;
+
 namespace MouseTrap.Behaviours
 {
 	// If specific window is picked, determine if specific window is in focus
@@ -25,6 +27,10 @@ namespace MouseTrap.Behaviours
 		{
 			if (AppState.IsWatchingSpecificWindow)
 			{
+				// Trace
+				WriteLine($"{nameof(WindowFocusBehaviour)}.{nameof(ForegroundWindowHook_ForegroundWindowChanged)}");
+
+				// Set state
 				MouseHook.SetState(AppState.Handle == e.Handle &&
 					AppState.ProcessId == e.WindowThreadProcId &&
 					AppState.ProcessPath == e.ProcessPath);

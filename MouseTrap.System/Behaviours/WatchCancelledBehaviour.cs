@@ -2,6 +2,8 @@
 using MouseTrap.Models;
 using System;
 
+using static System.Diagnostics.Debug;
+
 namespace MouseTrap.Behaviours
 {
 	// If specific window is picked, determine if pick is cancelled
@@ -25,8 +27,12 @@ namespace MouseTrap.Behaviours
 			AppState.WatchingCancelled += AppState_WatchingCancelled;
 		}
 
-		private void AppState_WatchingCancelled(object sender, EventArgs e)
+		private void AppState_WatchingCancelled(object sender, WatchingCancelledEventArgs e)
 		{
+			// Trace
+			WriteLine($"{nameof(WatchCancelledBehaviour)}.{nameof(AppState_WatchingCancelled)}");
+
+			// Stop hooks
 			ForegroundWindowHook.StopHook();
 			WindowUpdateHook.StopHook();
 			MouseHook.StopHook();

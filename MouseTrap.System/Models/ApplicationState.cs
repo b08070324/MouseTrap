@@ -1,4 +1,5 @@
 ﻿using MouseTrap.Interop;
+using MouseTrap.Models;
 using System;
 
 namespace MouseTrap.Models
@@ -29,26 +30,35 @@ namespace MouseTrap.Models
 
 		public void WatchForProgramPath(string processPath)
 		{
-			Handle = default;
-			ProcessId = default;
-			ProcessPath = processPath;
-			WatchingProgramPath?.Invoke(this, EventArgs.Empty);
+			if (ProcessPath == default)
+			{
+				Handle = default;
+				ProcessId = default;
+				ProcessPath = processPath;
+				WatchingProgramPath?.Invoke(this, EventArgs.Empty);
+			}
 		}
 
-		public void WatchForSpecificWindow(IntPtr handle, bool startRestricted)
+		public void WatchForSpecificWindow(IntPtr handle)
 		{
-			Handle = handle;
-			NativeMethods.GetWindowThreadProcessId(handle, out _processId);
-			ProcessPath = NativeMethods.GetFullProcessName((int)_processId);
-			WatchingSpecificWindow?.Invoke(this, EventArgs.Empty);
+			if (Handle == default)
+			{
+				Handle = handle;
+				NativeMethods.GetWindowThreadProcessId(handle, out _processId);
+				ProcessPath = NativeMethods.GetFullProcessName((int)_processId);
+				WatchingSpecificWindow?.Invoke(this, EventArgs.Empty);
+			}
 		}
 
-		public void CancelWatch()
+		public void CancelWatch(bool windowWasClosed = false)
 		{
-			Handle = default;
-			ProcessId = default;
-			ProcessPath = default;
-			WatchingCancelled?.Invoke(this, EventArgs.Empty);
+			if (Handle != default)
+			{
+				Handle = default;
+				ProcessId = default;
+				ProcessPath = default;
+				WatchingCancelled?.Invoke(this, new WatchingCancelledEventArgs { WindowWasClosed = windowWasClosed });
+			}
 		}
 
 		public void SetPadding(Dimensions padding)
@@ -59,7 +69,7 @@ namespace MouseTrap.Models
 
 		public event EventHandler WatchingProgramPath;
 		public event EventHandler WatchingSpecificWindow;
-		public event EventHandler WatchingCancelled;
+		public event EventHandler<WatchingCancelledEventArgs> WatchingCancelled;
 		public event EventHandler PaddingUpdated;
 	}
 }

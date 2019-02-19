@@ -5,7 +5,7 @@ namespace MouseTrap.ViewModels
 {
 	public class ToolBarLiveModel : ToolBarViewModel
 	{
-		private ViewType PreviousView { get; set; }
+		public ViewType PreviousView { get; set; }
 
 		public ToolBarLiveModel()
 		{
@@ -15,7 +15,7 @@ namespace MouseTrap.ViewModels
 			RefreshListCommand = new RelayCommand(p => OnRefreshButtonClicked());
 		}
 
-		private void ToggleLockWindow()
+		public void ToggleLockWindow()
 		{
 			if (CurrentView == ViewType.LockWindow)
 			{

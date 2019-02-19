@@ -2,6 +2,8 @@
 using MouseTrap.Models;
 using System;
 
+using static System.Diagnostics.Debug;
+
 namespace MouseTrap.Behaviours
 {
 	// If specific window is picked, determine if window is closed
@@ -20,7 +22,11 @@ namespace MouseTrap.Behaviours
 
 		private void WindowUpdateHook_WindowClosed(object sender, EventArgs e)
 		{
-			AppState.CancelWatch();
+			// Trace
+			WriteLine($"{nameof(WindowClosedBehaviour)}.{nameof(WindowUpdateHook_WindowClosed)}");
+
+			// Set state
+			AppState.CancelWatch(true);
 		}
 	}
 }

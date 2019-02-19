@@ -1,26 +1,18 @@
-﻿using System.ComponentModel;
+﻿using MouseTrap.Foundation;
+using System.ComponentModel;
 
 namespace MouseTrap.ViewModels
 {
-	public abstract class MainWindowViewModel : INotifyPropertyChanged
+	public abstract class MainWindowViewModel : NotifyingObject
 	{
 		private IViewModel _currentViewModel;
 
 		public IViewModel CurrentViewModel
 		{
 			get => _currentViewModel;
-			set
-			{
-				if (value != _currentViewModel)
-				{
-					_currentViewModel = value;
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentViewModel)));
-				}
-			} 
+			set => SetAndRaiseEvent(ref _currentViewModel, value);
 		}
 
 		public ToolBarViewModel ToolBarViewModel { get; set; }
-
-		public event PropertyChangedEventHandler PropertyChanged;
 	}
 }

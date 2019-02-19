@@ -1,11 +1,12 @@
-﻿using MouseTrap.Models;
+﻿using MouseTrap.Foundation;
+using MouseTrap.Models;
 using System;
 using System.ComponentModel;
 using System.Windows.Input;
 
 namespace MouseTrap.ViewModels
 {
-	public abstract class ToolBarViewModel : IViewModel, INotifyPropertyChanged
+	public abstract class ToolBarViewModel : NotifyingObject, IViewModel
 	{
 		private bool _windowLockEnabled;
 		private ViewType _currentView;
@@ -13,27 +14,13 @@ namespace MouseTrap.ViewModels
 		public bool WindowLockEnabled
 		{
 			get => _windowLockEnabled;
-			set
-			{
-				if (value != _windowLockEnabled)
-				{
-					_windowLockEnabled = value;
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WindowLockEnabled)));
-				}
-			}
+			set => SetAndRaiseEvent(ref _windowLockEnabled, value);
 		}
 
 		public ViewType CurrentView
 		{
 			get => _currentView;
-			set
-			{
-				if (value != _currentView)
-				{
-					_currentView = value;
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentView)));
-				}
-			}
+			set => SetAndRaiseEvent(ref _currentView, value);
 		}
 
 		public ICommand ChooseWindowCommand { get; set; }
@@ -41,7 +28,6 @@ namespace MouseTrap.ViewModels
 		public ICommand ToggleLockCommand { get; set; }
 		public ICommand RefreshListCommand { get; set; }
 
-		public event PropertyChangedEventHandler PropertyChanged;
 		public event EventHandler RefreshButtonClicked;
 
 		protected void OnRefreshButtonClicked()

@@ -3,6 +3,8 @@ using MouseTrap.Interop;
 using MouseTrap.Models;
 using System;
 
+using static System.Diagnostics.Debug;
+
 namespace MouseTrap.Behaviours
 {
 
@@ -25,6 +27,9 @@ namespace MouseTrap.Behaviours
 		{
 			if (AppState.IsWatchingSpecificWindow)
 			{
+				// Trace
+				WriteLine($"{nameof(PaddingChangeBehaviour)}.{nameof(AppState_PaddingUpdated)}");
+
 				// Get window rect
 				NativeMethods.GetWindowRect(AppState.Handle, out Win32Rect rect);
 

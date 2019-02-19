@@ -3,6 +3,8 @@ using MouseTrap.Interop;
 using MouseTrap.Models;
 using System;
 
+using static System.Diagnostics.Debug;
+
 namespace MouseTrap.Behaviours
 {
 	// If specific window is not picked, determine if specific window is picked
@@ -28,6 +30,10 @@ namespace MouseTrap.Behaviours
 
 		private void AppState_WatchingSpecificProgram(object sender, EventArgs e)
 		{
+			// Trace
+			WriteLine($"{nameof(SpecificWindowBehaviour)}.{nameof(AppState_WatchingSpecificProgram)}");
+
+			// Start hooks
 			ForegroundWindowHook.StartHook();
 			WindowUpdateHook.StartHook(AppState.Handle);
 

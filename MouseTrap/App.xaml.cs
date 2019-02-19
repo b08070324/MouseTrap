@@ -1,4 +1,5 @@
-﻿using MouseTrap.ViewModels;
+﻿using MouseTrap.Models;
+using MouseTrap.ViewModels;
 using System.Windows;
 
 namespace MouseTrap

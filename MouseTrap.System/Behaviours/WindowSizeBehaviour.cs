@@ -2,6 +2,8 @@
 using MouseTrap.Interop;
 using MouseTrap.Models;
 
+using static System.Diagnostics.Debug;
+
 namespace MouseTrap.Behaviours
 {
 	// If specific window is picked, determine if window changes size
@@ -26,6 +28,10 @@ namespace MouseTrap.Behaviours
 		{
 			if (AppState.IsWatchingSpecificWindow)
 			{
+				// Trace
+				WriteLine($"{nameof(WindowSizeBehaviour)}.{nameof(WindowUpdateHook_DimensionsChanged)}");
+
+				// Set region
 				Dimensions region = e.Dimensions.GetPaddedDimensions(AppState.Padding);
 				MouseHook.SetRegion(region);
 			}

@@ -2,6 +2,8 @@
 using MouseTrap.Models;
 using System;
 
+using static System.Diagnostics.Debug;
+
 namespace MouseTrap.Behaviours
 {
 	// If program path is not picked, determine if program path is picked
@@ -20,6 +22,10 @@ namespace MouseTrap.Behaviours
 
 		private void AppState_WatchingProgramPath(object sender, EventArgs e)
 		{
+			// Trace
+			WriteLine($"{nameof(ProgramPathBehaviour)}.{nameof(AppState_WatchingProgramPath)}");
+
+			// Start hook
 			ForegroundWindowHook.StartHook();
 		}
 	}

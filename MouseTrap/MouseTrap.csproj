@@ -83,6 +83,7 @@
     <Compile Include="Controls\WindowListDetails.xaml.cs">
       <DependentUpon>WindowListDetails.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Foundation\NotifyingObject.cs" />
     <Compile Include="ViewModels\FindProgramDesignModel.cs" />
     <Compile Include="ViewModels\FindProgramLiveModel.cs" />
     <Compile Include="ViewModels\LockWindowDesignModel.cs" />

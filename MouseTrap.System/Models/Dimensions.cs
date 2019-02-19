@@ -6,6 +6,8 @@
 		public double Top { get; set; }
 		public double Right { get; set; }
 		public double Bottom { get; set; }
+		public double Width => (Right - Left);
+		public double Height => (Bottom - Top);
 
 		public Dimensions GetPaddedDimensions(Dimensions padding)
 		{

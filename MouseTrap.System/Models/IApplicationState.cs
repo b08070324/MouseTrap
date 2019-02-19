@@ -14,14 +14,14 @@ namespace MouseTrap.Models
 
 		// Commands
 		void WatchForProgramPath(string processPath);
-		void WatchForSpecificWindow(IntPtr handle, bool startRestricted);
-		void CancelWatch();
+		void WatchForSpecificWindow(IntPtr handle);
+		void CancelWatch(bool windowWasClosed = false);
 		void SetPadding(Dimensions padding);
 
 		// Events
 		event EventHandler WatchingProgramPath;
 		event EventHandler WatchingSpecificWindow;
-		event EventHandler WatchingCancelled;
+		event EventHandler<WatchingCancelledEventArgs> WatchingCancelled;
 		event EventHandler PaddingUpdated;
 	}
 }

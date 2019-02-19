@@ -1,6 +1,8 @@
 ﻿using MouseTrap.Hooks;
 using MouseTrap.Models;
 
+using static System.Diagnostics.Debug;
+
 namespace MouseTrap.Behaviours
 {
 	// If program path is picked, determine if fg change matches path
@@ -23,7 +25,11 @@ namespace MouseTrap.Behaviours
 			{
 				if (AppState.ProcessPath == e.ProcessPath)
 				{
-					AppState.WatchForSpecificWindow(e.Handle, false);
+					// Trace
+					WriteLine($"{nameof(ProgramPathToSpecificWindowBehaviour)}.{nameof(ForegroundWindowHook_ForegroundWindowChanged)}");
+
+					// Set state
+					AppState.WatchForSpecificWindow(e.Handle);
 				}
 			}
 		}
