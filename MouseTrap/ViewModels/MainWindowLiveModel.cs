@@ -59,7 +59,7 @@ namespace MouseTrap.ViewModels
 			// If the window was closed clear target details
 			if (e.WindowWasClosed)
 			{
-				UpdateTargetWindowDetails();
+				UpdateTargetWindowDetails(ProcessPath);
 			}
 		}
 
