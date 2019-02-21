@@ -13,5 +13,6 @@ namespace MouseTrap.Models
 		double Height { get; }
 		string ShortPath { get; }
 		BitmapSource ProcessIcon { get; }
+		bool IsMinimized { get; }
 	}
 }

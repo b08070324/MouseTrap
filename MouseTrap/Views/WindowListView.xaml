@@ -24,8 +24,8 @@
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
-		
-		<DataGrid ItemsSource="{Binding WindowList}" SelectedItem="{Binding SelectedWindow}"
+
+		<DataGrid ItemsSource="{Binding DataSource}" SelectedItem="{Binding SelectedWindow}"
 				  IsReadOnly="True"
 				  SelectionMode="Single"
 				  AutoGenerateColumns="False"
@@ -57,6 +57,17 @@
 					</Style.Triggers>
 				</Style>
 			</DataGrid.Resources>
+			<DataGrid.GroupStyle>
+				<GroupStyle>
+					<GroupStyle.HeaderTemplate>
+						<DataTemplate>
+							<Border Padding="8" HorizontalAlignment="Stretch">
+								<TextBlock Text="{Binding Name}"/>
+							</Border>
+						</DataTemplate>
+					</GroupStyle.HeaderTemplate>
+				</GroupStyle>
+			</DataGrid.GroupStyle>
 			<DataGrid.Columns>
 				<DataGridTemplateColumn Header="" Width="Auto">
 					<DataGridTemplateColumn.CellTemplate>

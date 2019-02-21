@@ -77,6 +77,8 @@ namespace MouseTrap.Models
 			}
 		}
 
+		public bool IsMinimized { get; set; }
+
 		private void GetWindowRect()
 		{
 			NativeMethods.GetWindowRect(Handle, out Win32Rect rect);

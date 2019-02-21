@@ -25,11 +25,10 @@ namespace MouseTrap.Data
 		{
 			// Filter for visibility, tool windows
 			if (NativeMethods.IsWindowVisible(hWnd) && 
-				!NativeMethods.IsIconic(hWnd) && 
 				!NativeMethods.WindowHasExStyle(hWnd, WindowStylesEx.WS_EX_TOOLWINDOW | WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP))
 			{
 				// Get window details
-				var window = new EnumeratedWindow(hWnd);
+				var window = new EnumeratedWindow(hWnd) { IsMinimized = NativeMethods.IsIconic(hWnd) };
 
 				// Filter for windows in same process
 				if (window.ProcessId != CurrentProcessId)

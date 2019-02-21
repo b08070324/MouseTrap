@@ -31,6 +31,7 @@ namespace MouseTrap.ViewModels
 					Title = window.Title,
 					Width = window.Right - window.Left,
 					Height = window.Bottom - window.Top,
+					IsMinimized = window.IsMinimized
 				});
 			});
 

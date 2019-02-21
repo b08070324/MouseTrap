@@ -12,5 +12,6 @@ namespace MouseTrap.Models
 		double Top { get; }
 		double Right { get; }
 		double Bottom { get; }
+		bool IsMinimized { get; }
 	}
 }
