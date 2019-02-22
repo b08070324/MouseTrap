@@ -69,7 +69,7 @@ namespace MouseTrap.ViewModels
 			var windowListLiveModel = WindowListViewModelFactory();
 
 			// Set selected window with a process ID to enable re-selection in list
-			if (ProcessId != default) windowListLiveModel.SelectedWindow = new WindowListItem { ProcessId = ProcessId };
+			if (ProcessId != default) windowListLiveModel.SelectedWindow = new WindowListItem { ProcessId = ProcessId, Handle = Handle };
 
 			// Refresh list
 			windowListLiveModel.RefreshList();
@@ -136,12 +136,12 @@ namespace MouseTrap.ViewModels
 				switch (ToolBarViewModel.CurrentView)
 				{
 					case ViewType.WindowList:
-						SetWindowList();
 						StopWatch();
+						SetWindowList();
 						break;
 					case ViewType.FindProgram:
-						SetFindProgram();
 						StopWatch();
+						SetFindProgram();
 						break;
 					case ViewType.LockWindow:
 						SetLockWindow();
