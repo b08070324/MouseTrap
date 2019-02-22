@@ -10,14 +10,6 @@ namespace MouseTrap.ViewModels
 	public abstract class WindowListViewModel : NotifyingObject, IViewModel
 	{
 		private IWindowListItem _selectedWindow;
-		private static readonly MinimizedValueConverter minimizedValueConverter = new MinimizedValueConverter();
-
-		public WindowListViewModel()
-		{
-			// Subscribe to change events in order to update DataSource
-			WindowList = new ObservableCollection<IWindowListItem>();
-			WindowList.CollectionChanged += WindowList_CollectionChanged;
-		}
 
 		// Backing data source
 		public ObservableCollection<IWindowListItem> WindowList { get; private set; }
@@ -32,15 +24,16 @@ namespace MouseTrap.ViewModels
 			set => SetAndRaiseEvent(ref _selectedWindow, value);
 		}
 
-		// If WindowList was updated, refresh the datagrid source
-		private void WindowList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		// Constructor
+		public WindowListViewModel()
 		{
+			WindowList = new ObservableCollection<IWindowListItem>();
 			DataSource = new ListCollectionView(WindowList);
-			DataSource.GroupDescriptions.Add(new PropertyGroupDescription("IsMinimized", minimizedValueConverter));
+			DataSource.GroupDescriptions.Add(new PropertyGroupDescription("IsMinimized", new MinimizedValueConverter()));
 		}
 
 		// Refreshes WindowList
-		public virtual void RefreshList() { }
+		public abstract void RefreshList();
 
 		// Converts IsMinimized bool to a text description
 		private class MinimizedValueConverter : IValueConverter

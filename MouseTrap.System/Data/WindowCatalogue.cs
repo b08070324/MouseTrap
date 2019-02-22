@@ -2,6 +2,8 @@
 using MouseTrap.Models;
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Windows.Automation;
 
 namespace MouseTrap.Data
 {
@@ -10,6 +12,14 @@ namespace MouseTrap.Data
 		private int CurrentProcessId { get; }
 		private Action<IWindow> Callback { get; set; }
 
+		private static readonly string[] BlacklistedClassNames = new string[]
+		{
+			"Shell_TrayWnd",
+			"Shell_SecondaryTrayWnd",
+			"SysListView32",
+			"Progman"
+		};
+
 		public WindowCatalogue()
 		{
 			CurrentProcessId = Process.GetCurrentProcess().Id;
@@ -17,29 +27,27 @@ namespace MouseTrap.Data
 
 		public void EnumerateWindows(Action<IWindow> callback)
 		{
-			Callback = callback;
-			NativeMethods.EnumWindows(InteropCallback, IntPtr.Zero);
-		}
-
-		private bool InteropCallback(IntPtr hWnd, int lParam)
-		{
-			// Filter for visibility, tool windows
-			if (NativeMethods.IsWindowVisible(hWnd) && 
-				!NativeMethods.WindowHasExStyle(hWnd, WindowStylesEx.WS_EX_TOOLWINDOW | WindowStylesEx.WS_EX_NOREDIRECTIONBITMAP))
+			var rootChildren = AutomationElement.RootElement.FindAll(TreeScope.Children, Condition.TrueCondition);
+			foreach (AutomationElement element in rootChildren)
 			{
-				// Get window details
-				var window = new EnumeratedWindow(hWnd) { IsMinimized = NativeMethods.IsIconic(hWnd) };
+				if (element.Current.ProcessId == CurrentProcessId) continue;
+				if (BlacklistedClassNames.Contains(element.Current.ClassName)) continue;
+				if (string.IsNullOrEmpty(element.Current.Name)) continue;
 
-				// Filter for windows in same process
-				if (window.ProcessId != CurrentProcessId)
+				var window = new EnumeratedWindow
 				{
-					// Send window details to client
-					Callback(window);
-				}
-			}
+					Handle = new IntPtr(element.Current.NativeWindowHandle),
+					ProcessId = (uint)element.Current.ProcessId,
+					Title = element.Current.Name,
+					Left = element.Current.BoundingRectangle.Left,
+					Top = element.Current.BoundingRectangle.Top,
+					Right = element.Current.BoundingRectangle.Right,
+					Bottom = element.Current.BoundingRectangle.Bottom,
+					IsMinimized = element.Current.IsOffscreen,
+				};
 
-			// Continue iterating
-			return true;
+				callback(window);
+			}
 		}
 	}
 }

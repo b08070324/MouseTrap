@@ -1,5 +1,6 @@
 ﻿using MouseTrap.Data;
 using MouseTrap.Models;
+using System;
 using System.Linq;
 
 namespace MouseTrap.ViewModels
@@ -17,7 +18,14 @@ namespace MouseTrap.ViewModels
 		{
 			// Store ref to selected window
 			// SelectedWindow is cleared by view datagrid in some circumstances
-			uint processId = SelectedWindow == null ? 0 : SelectedWindow.ProcessId;
+			uint processId = default;
+			IntPtr handle = default;
+
+			if (SelectedWindow != null)
+			{
+				processId = SelectedWindow.ProcessId;
+				handle = SelectedWindow.Handle;
+			}
 
 			// Refresh list
 			WindowList.Clear();
@@ -36,10 +44,10 @@ namespace MouseTrap.ViewModels
 			});
 
 			// Reset selected window
-			if (processId != 0)
+			if (processId != default && handle != default)
 			{
 				// Look for window with matching process ID
-				var item = WindowList.FirstOrDefault(x => x.ProcessId == processId);
+				var item = WindowList.FirstOrDefault(x => x.ProcessId == processId && x.Handle == handle);
 
 				// Set SelectedWindow to list entry, or clear
 				SelectedWindow = item ?? null;
