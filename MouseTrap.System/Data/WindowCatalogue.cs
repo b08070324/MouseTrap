@@ -2,8 +2,6 @@
 using MouseTrap.Models;
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Windows.Automation;
 
 namespace MouseTrap.Data
 {
@@ -27,27 +25,32 @@ namespace MouseTrap.Data
 
 		public void EnumerateWindows(Action<IWindow> callback)
 		{
-			var rootChildren = AutomationElement.RootElement.FindAll(TreeScope.Children, Condition.TrueCondition);
-			foreach (AutomationElement element in rootChildren)
-			{
-				if (element.Current.ProcessId == CurrentProcessId) continue;
-				if (BlacklistedClassNames.Contains(element.Current.ClassName)) continue;
-				if (string.IsNullOrEmpty(element.Current.Name)) continue;
+			Callback = callback;
+			NativeMethods.EnumWindows(InteropCallback, IntPtr.Zero);
+		}
 
-				var window = new EnumeratedWindow
-				{
-					Handle = new IntPtr(element.Current.NativeWindowHandle),
-					ProcessId = (uint)element.Current.ProcessId,
-					Title = element.Current.Name,
-					Left = element.Current.BoundingRectangle.Left,
-					Top = element.Current.BoundingRectangle.Top,
-					Right = element.Current.BoundingRectangle.Right,
-					Bottom = element.Current.BoundingRectangle.Bottom,
-					IsMinimized = element.Current.IsOffscreen,
-				};
+		private bool InteropCallback(IntPtr hWnd, int lParam)
+		{
+			// Filter for visibility
+			if (!NativeMethods.IsWindowVisible(hWnd)) return true;
 
-				callback(window);
-			}
+			// Filter for tool windows
+			if (NativeMethods.WindowHasExStyle(hWnd, WindowStylesEx.WS_EX_TOOLWINDOW)) return true;
+
+			// Get window details
+			var window = new EnumeratedWindow(hWnd);
+
+			// Filter for windows in same process
+			if (window.ProcessId == CurrentProcessId) return true;
+
+			// Filter title length
+			if (string.IsNullOrEmpty(window.Title)) return true;
+
+			// Send window details to client
+			Callback(window);
+
+			// Continue iterating
+			return true;
 		}
 	}
 }
