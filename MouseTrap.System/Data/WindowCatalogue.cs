@@ -2,55 +2,100 @@
 using MouseTrap.Models;
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace MouseTrap.Data
 {
 	public class WindowCatalogue : IWindowCatalogue
 	{
-		private int CurrentProcessId { get; }
-		private Action<IWindow> Callback { get; set; }
-
-		private static readonly string[] BlacklistedClassNames = new string[]
+		private bool ValidateWindow(IntPtr handle, uint processId, string title)
 		{
-			"Shell_TrayWnd",
-			"Shell_SecondaryTrayWnd",
-			"SysListView32",
-			"Progman"
-		};
+			// Filter for visibility
+			if (!NativeMethods.IsWindowVisible(handle)) return false;
 
-		public WindowCatalogue()
-		{
-			CurrentProcessId = Process.GetCurrentProcess().Id;
+			// Filter elements with no name
+			if (string.IsNullOrEmpty(title)) return false;
+
+			// Filter for windows in same process
+			var mouseTrapProcessId = Process.GetCurrentProcess().Id;
+			if (processId == mouseTrapProcessId) return false;
+
+			// Filter for app windows
+			var windowStylesEx = NativeMethods.GetWindowStyleEx(handle);
+			var windowStylesExFilter = WindowStylesEx.WS_EX_APPWINDOW;
+			if ((windowStylesEx & windowStylesExFilter) != 0) return true;
+
+			// Filter for no activate, tool windows
+			windowStylesExFilter = WindowStylesEx.WS_EX_TOOLWINDOW | WindowStylesEx.WS_EX_NOACTIVATE;
+			if ((windowStylesEx & windowStylesExFilter) != 0) return false;
+
+			// Ignore core windows
+			var className = NativeMethods.GetClassName(handle);
+			if (className == "Windows.UI.Core.CoreWindow") return false;
+
+			// Ignore WPF windows that are inactive
+			bool windowInactive = false;
+			if (className == "ApplicationFrameWindow")
+			{
+				NativeMethods.EnumPropsEx(handle, (hwnd, lpszString, hData, dwData) =>
+				{
+					// Get property name as string
+					string propName = Marshal.PtrToStringAnsi(lpszString);
+
+					// Check property value
+					if (propName == "ApplicationViewCloakType")
+					{
+						// 1 is inactive
+						windowInactive = (dwData.ToInt32() == 1);
+
+						// Exit callback loop
+						return 0;
+					}
+
+					// Continue callback loop
+					return 1;
+				}, IntPtr.Zero);
+			}
+
+			if (windowInactive) return false;
+
+			return true;
 		}
 
 		public void EnumerateWindows(Action<IWindow> callback)
 		{
-			Callback = callback;
-			NativeMethods.EnumWindows(InteropCallback, IntPtr.Zero);
-		}
+			NativeMethods.EnumWindows((hWnd, lParam) =>
+			{
+				// Get process ID
+				NativeMethods.GetWindowThreadProcessId(hWnd, out uint processId);
 
-		private bool InteropCallback(IntPtr hWnd, int lParam)
-		{
-			// Filter for visibility
-			if (!NativeMethods.IsWindowVisible(hWnd)) return true;
+				// Get title
+				var title = NativeMethods.GetWindowText(hWnd);
 
-			// Filter for tool windows
-			if (NativeMethods.WindowHasExStyle(hWnd, WindowStylesEx.WS_EX_TOOLWINDOW)) return true;
+				// Validate window for list inclusion
+				if (ValidateWindow(hWnd, processId, title))
+				{
+					// Get dimensions
+					NativeMethods.GetWindowRect(hWnd, out Win32Rect rect);
 
-			// Get window details
-			var window = new EnumeratedWindow(hWnd);
+					// Send window details to callback
+					callback(new EnumeratedWindow
+					{
+						Handle = hWnd,
+						ProcessId = processId,
+						ProcessPath = NativeMethods.GetFullProcessName((int)processId),
+						Title = title,
+						Left = rect.Left,
+						Top = rect.Top,
+						Right = rect.Right,
+						Bottom = rect.Bottom,
+						IsMinimized = NativeMethods.IsIconic(hWnd)
+					});
+				}
 
-			// Filter for windows in same process
-			if (window.ProcessId == CurrentProcessId) return true;
-
-			// Filter title length
-			if (string.IsNullOrEmpty(window.Title)) return true;
-
-			// Send window details to client
-			Callback(window);
-
-			// Continue iterating
-			return true;
+				// Continue iterating
+				return true;
+			}, IntPtr.Zero);
 		}
 	}
 }

@@ -33,7 +33,8 @@ namespace MouseTrap.Hooks
 			if (handle != null && objectId == 0)
 			{
 				// Ignore these windows
-				if (NativeMethods.WindowHasExStyle(handle, WindowStylesEx.WS_EX_NOACTIVATE)) return;
+				var windowStyle = NativeMethods.GetWindowStyleEx(handle);
+				if ((windowStyle & WindowStylesEx.WS_EX_NOACTIVATE) == WindowStylesEx.WS_EX_NOACTIVATE) return;
 
 				// Get process ID and check against last
 				NativeMethods.GetWindowThreadProcessId(handle, out uint windowThreadProcId);
