@@ -8,7 +8,7 @@ namespace MouseTrap.Data
 {
 	public class WindowCatalogue : IWindowCatalogue
 	{
-		private bool ValidateWindow(IntPtr handle, uint processId, string title)
+		private bool ShouldIncludeWindow(IntPtr handle, uint processId, string title)
 		{
 			// Filter for visibility
 			if (!NativeMethods.IsWindowVisible(handle)) return false;
@@ -33,31 +33,34 @@ namespace MouseTrap.Data
 			var className = NativeMethods.GetClassName(handle);
 			if (className == "Windows.UI.Core.CoreWindow") return false;
 
+			// Ignore windows that are cloaked
+			if (NativeMethods.IsWindowCloaked(handle)) return false;
+
 			// Ignore WPF windows that are inactive
-			bool windowInactive = false;
-			if (className == "ApplicationFrameWindow")
-			{
-				NativeMethods.EnumPropsEx(handle, (hwnd, lpszString, hData, dwData) =>
-				{
-					// Get property name as string
-					string propName = Marshal.PtrToStringAnsi(lpszString);
+			// This might not be required, keeping the code here atm
+			//bool windowInactive = false;
+			//if (className == "ApplicationFrameWindow")
+			//{
+			//	NativeMethods.EnumPropsEx(handle, (hwnd, lpszString, hData, dwData) =>
+			//	{
+			//		// Get property name as string
+			//		string propName = Marshal.PtrToStringAnsi(lpszString);
 
-					// Check property value
-					if (propName == "ApplicationViewCloakType")
-					{
-						// 1 is inactive
-						windowInactive = (dwData.ToInt32() == 1);
+			//		// Check property value
+			//		if (propName == "ApplicationViewCloakType")
+			//		{
+			//			// 1 is inactive
+			//			windowInactive = (dwData.ToInt32() == 1);
 
-						// Exit callback loop
-						return 0;
-					}
+			//			// Exit callback loop
+			//			return 0;
+			//		}
 
-					// Continue callback loop
-					return 1;
-				}, IntPtr.Zero);
-			}
-
-			if (windowInactive) return false;
+			//		// Continue callback loop
+			//		return 1;
+			//	}, IntPtr.Zero);
+			//}
+			//if (windowInactive) return false;
 
 			return true;
 		}
@@ -73,7 +76,7 @@ namespace MouseTrap.Data
 				var title = NativeMethods.GetWindowText(hWnd);
 
 				// Validate window for list inclusion
-				if (ValidateWindow(hWnd, processId, title))
+				if (ShouldIncludeWindow(hWnd, processId, title))
 				{
 					// Get dimensions
 					NativeMethods.GetWindowRect(hWnd, out Win32Rect rect);

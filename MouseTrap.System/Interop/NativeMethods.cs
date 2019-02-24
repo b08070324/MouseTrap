@@ -172,5 +172,15 @@ namespace MouseTrap.Interop
 
 		[DllImport("user32.dll")]
 		internal static extern int EnumPropsEx(IntPtr hWnd, EnumPropsExDelegate lpEnumFunc, IntPtr lParam);
+
+		[DllImport("dwmapi.dll")]
+		internal static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out int pvAttribute, int cbAttribute);
+
+		// Check if window is cloaked - this returns false if the call fails
+		internal static bool IsWindowCloaked(IntPtr hWnd)
+		{
+			var result = DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out int isCloaked, sizeof(int));
+			return (result == 0 && isCloaked != 0);
+		}
 	}
 }

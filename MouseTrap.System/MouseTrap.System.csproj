@@ -63,6 +63,7 @@
     <Compile Include="Hooks\MouseHook.cs" />
     <Compile Include="Hooks\TitleChangedEventArgs.cs" />
     <Compile Include="Hooks\WindowUpdateHook.cs" />
+    <Compile Include="Interop\DWMWINDOWATTRIBUTE.cs" />
     <Compile Include="Models\EnumeratedWindow.cs" />
     <Compile Include="Models\IApplicationSystem.cs" />
     <Compile Include="Interop\GWL.cs" />
