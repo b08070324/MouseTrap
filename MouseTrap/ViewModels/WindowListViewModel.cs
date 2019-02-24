@@ -2,6 +2,7 @@
 using MouseTrap.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Data;
 
@@ -15,7 +16,7 @@ namespace MouseTrap.ViewModels
 		public ObservableCollection<IWindowListItem> WindowList { get; private set; }
 
 		// Datagrid data source
-		public ListCollectionView DataSource { get; private set; }
+		public ICollectionView DataSource { get; private set; }
 
 		// Datagrid entry selected by user
 		public IWindowListItem SelectedWindow
@@ -30,6 +31,7 @@ namespace MouseTrap.ViewModels
 			WindowList = new ObservableCollection<IWindowListItem>();
 			DataSource = new ListCollectionView(WindowList);
 			DataSource.GroupDescriptions.Add(new PropertyGroupDescription("IsMinimized", new MinimizedValueConverter()));
+			DataSource.SortDescriptions.Add(new SortDescription("IsMinimized", ListSortDirection.Ascending));
 		}
 
 		// Refreshes WindowList
