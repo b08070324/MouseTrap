@@ -6,8 +6,10 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
-	// Determine if system variables change
-	// If changed, update TargetWindowDetails with changes
+	/// <summary>
+	/// Determine if system variables change
+	/// If changed, update TargetWindowDetails with changes
+	/// </summary>
 	internal class UpdateDetailsBehaviour : BaseBehaviour
 	{
 		private IApplicationState AppState { get; }
@@ -34,6 +36,10 @@ namespace MouseTrap.Behaviours
 			ForegroundWindowHook.ForegroundWindowChanged += ForegroundWindowHook_ForegroundWindowChanged;
 		}
 
+		/// <summary>
+		/// When state changes to watching a specific window, get the window title and dimensions
+		/// and update the target window details object for UI display
+		/// </summary>
 		private void AppState_WatchingSpecificWindow(object sender, System.EventArgs e)
 		{
 			// Trace
@@ -52,6 +58,10 @@ namespace MouseTrap.Behaviours
 			};
 		}
 
+		/// <summary>
+		/// When state changes to watching a program path, set target window details object
+		/// with values that reflect the current state
+		/// </summary>
 		private void AppState_WatchingProgramPath(object sender, System.EventArgs e)
 		{
 			// Trace
@@ -62,6 +72,9 @@ namespace MouseTrap.Behaviours
 			TargetWindowDetails.WindowDimensions = new Dimensions();
 		}
 
+		/// <summary>
+		/// When the observed window title changes, update the target window details object
+		/// </summary>
 		private void WindowUpdateHook_TitleChanged(object sender, TitleChangedEventArgs e)
 		{
 			// Trace
@@ -71,6 +84,9 @@ namespace MouseTrap.Behaviours
 			TargetWindowDetails.WindowTitle = e.Title;
 		}
 
+		/// <summary>
+		/// When the observed window dimensions change, update the target window details object
+		/// </summary>
 		private void WindowUpdateHook_DimensionsChanged(object sender, DimensionsChangedEventArgs e)
 		{
 			// Trace
@@ -80,6 +96,10 @@ namespace MouseTrap.Behaviours
 			TargetWindowDetails.WindowDimensions = e.Dimensions;
 		}
 
+		/// <summary>
+		/// When the foreground window changes, update the target window details object
+		/// to show if the target window has focus
+		/// </summary>
 		private void ForegroundWindowHook_ForegroundWindowChanged(object sender, ForegroundWindowChangedEventArgs e)
 		{
 			// Trace

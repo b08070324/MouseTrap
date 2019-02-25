@@ -3,6 +3,11 @@ using System.Collections.Concurrent;
 
 namespace MouseTrap.Foundation
 {
+	/// <summary>
+	/// Object pool
+	/// </summary>
+	/// <remarks>https://docs.microsoft.com/en-us/dotnet/standard/collections/thread-safe/how-to-create-an-object-pool</remarks>
+	/// <typeparam name="T"></typeparam>
 	internal class ObjectPool<T>
 	{
 		private Func<T> ObjectGenerator { get; }

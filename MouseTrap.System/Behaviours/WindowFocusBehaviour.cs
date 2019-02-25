@@ -5,8 +5,10 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
-	// If specific window is picked, determine if specific window is in focus
-	// If focus changes, update MouseHook
+	/// <summary>
+	/// If specific window is picked, determine if specific window is in focus
+	/// If focus changes, update MouseHook
+	/// </summary>
 	internal class WindowFocusBehaviour : BaseBehaviour
 	{
 		private IApplicationState AppState { get; }

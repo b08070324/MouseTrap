@@ -6,8 +6,10 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
-	// If specific window is picked, determine if window changes size
-	// If changed, update MouseHook with size and padding
+	/// <summary>
+	/// If specific window is picked, determine if window changes size
+	/// If changed, update MouseHook with size and padding
+	/// </summary>
 	internal class WindowSizeBehaviour : BaseBehaviour
 	{
 		private IApplicationState AppState { get; }

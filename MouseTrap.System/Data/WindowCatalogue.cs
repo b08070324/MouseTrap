@@ -2,69 +2,26 @@
 using MouseTrap.Models;
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace MouseTrap.Data
 {
 	public class WindowCatalogue : IWindowCatalogue
 	{
-		private bool ShouldIncludeWindow(IntPtr handle, uint processId, string title)
+		// Process ID of this application
+		private readonly int mouseTrapProcessId;
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		public WindowCatalogue()
 		{
-			// Filter for visibility
-			if (!NativeMethods.IsWindowVisible(handle)) return false;
-
-			// Filter elements with no name
-			if (string.IsNullOrEmpty(title)) return false;
-
-			// Filter for windows in same process
-			var mouseTrapProcessId = Process.GetCurrentProcess().Id;
-			if (processId == mouseTrapProcessId) return false;
-
-			// Filter for app windows
-			var windowStylesEx = NativeMethods.GetWindowStyleEx(handle);
-			var windowStylesExFilter = WindowStylesEx.WS_EX_APPWINDOW;
-			if ((windowStylesEx & windowStylesExFilter) != 0) return true;
-
-			// Filter for no activate, tool windows
-			windowStylesExFilter = WindowStylesEx.WS_EX_TOOLWINDOW | WindowStylesEx.WS_EX_NOACTIVATE;
-			if ((windowStylesEx & windowStylesExFilter) != 0) return false;
-
-			// Ignore core windows
-			var className = NativeMethods.GetClassName(handle);
-			if (className == "Windows.UI.Core.CoreWindow") return false;
-
-			// Ignore windows that are cloaked
-			if (NativeMethods.IsWindowCloaked(handle)) return false;
-
-			// Ignore WPF windows that are inactive
-			// This might not be required, keeping the code here atm
-			//bool windowInactive = false;
-			//if (className == "ApplicationFrameWindow")
-			//{
-			//	NativeMethods.EnumPropsEx(handle, (hwnd, lpszString, hData, dwData) =>
-			//	{
-			//		// Get property name as string
-			//		string propName = Marshal.PtrToStringAnsi(lpszString);
-
-			//		// Check property value
-			//		if (propName == "ApplicationViewCloakType")
-			//		{
-			//			// 1 is inactive
-			//			windowInactive = (dwData.ToInt32() == 1);
-
-			//			// Exit callback loop
-			//			return 0;
-			//		}
-
-			//		// Continue callback loop
-			//		return 1;
-			//	}, IntPtr.Zero);
-			//}
-			//if (windowInactive) return false;
-
-			return true;
+			mouseTrapProcessId = Process.GetCurrentProcess().Id;
 		}
 
+		/// <summary>
+		/// Enumerates visible windows
+		/// </summary>
+		/// <param name="callback">Action to be called when a visible window is found</param>
 		public void EnumerateWindows(Action<IWindow> callback)
 		{
 			NativeMethods.EnumWindows((hWnd, lParam) =>
@@ -99,6 +56,40 @@ namespace MouseTrap.Data
 				// Continue iterating
 				return true;
 			}, IntPtr.Zero);
+		}
+
+		/// <summary>
+		/// Determines if a window should be sent to the enumeration callback
+		/// </summary>
+		/// <param name="handle">Window handle</param>
+		/// <param name="processId">Window process ID</param>
+		/// <param name="title">Window title</param>
+		/// <returns>True if window should be sent to callback</returns>
+		private bool ShouldIncludeWindow(IntPtr handle, uint processId, string title)
+		{
+			// Exclude this application
+			if (processId == mouseTrapProcessId) return false;
+
+			// Exclude windows without the Visible style
+			if (!NativeMethods.IsWindowVisible(handle)) return false;
+
+			// Ignore windows that are cloaked
+			if (NativeMethods.IsWindowCloaked(handle)) return false;
+
+			// Include app windows
+			var windowStylesEx = NativeMethods.GetWindowStyleEx(handle);
+			var windowStylesExFilter = WindowStylesEx.WS_EX_APPWINDOW;
+			if ((windowStylesEx & windowStylesExFilter) != 0) return true;
+
+			// Exclude tool windows, and windows that don't become foreground window when clicked
+			windowStylesExFilter = WindowStylesEx.WS_EX_TOOLWINDOW | WindowStylesEx.WS_EX_NOACTIVATE;
+			if ((windowStylesEx & windowStylesExFilter) != 0) return false;
+
+			// Exclude windows with with no title
+			if (string.IsNullOrEmpty(title)) return false;
+
+			// Window should be included
+			return true;
 		}
 	}
 }

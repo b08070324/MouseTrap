@@ -4,6 +4,10 @@ using System;
 
 namespace MouseTrap.Hooks
 {
+	/// <summary>
+	/// Interface for a system hook that raises an event
+	/// when a specified window changes title, dimensions, or is closed
+	/// </summary>
 	internal interface IWindowUpdateHook
 	{
 		void StartHook(IntPtr handle);
@@ -13,6 +17,9 @@ namespace MouseTrap.Hooks
 		event EventHandler<DimensionsChangedEventArgs> DimensionsChanged;
 	}
 
+	/// <summary>
+	/// Implementation of <see cref="IWindowUpdateHook"/>
+	/// </summary>
 	internal sealed class WindowUpdateHook : WinEventHook, IWindowUpdateHook
 	{
 		private IntPtr TargetHandle { get; set; } = IntPtr.Zero;

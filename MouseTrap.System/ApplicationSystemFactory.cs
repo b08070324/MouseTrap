@@ -6,6 +6,10 @@ namespace MouseTrap
 {
 	public static class ApplicationSystemFactory
 	{
+		/// <summary>
+		/// Configures an instance of IApplicationSystem with appropriate services and behaviours
+		/// </summary>
+		/// <returns>The instace as IApplicationSystem suitable for use by the user interface</returns>
 		public static IApplicationSystem GetApplicationSystem()
 		{
 			var ApplicationState = new ApplicationState();
@@ -33,6 +37,9 @@ namespace MouseTrap
 			};
 		}
 
+		/// <summary>
+		/// Specific implementation of IApplicationSystem used by ApplicationSystemFactory
+		/// </summary>
 		private class ApplicationSystem : IApplicationSystem
 		{
 			public IApplicationState ApplicationState { get; set; }

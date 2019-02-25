@@ -7,8 +7,10 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
-	// If specific window is not picked, determine if specific window is picked
-	// If picked, start all hooks
+	/// <summary>
+	/// If specific window is not picked, determine if specific window is picked
+	/// If picked, start all hooks
+	/// </summary>
 	internal class SpecificWindowBehaviour : BaseBehaviour
 	{
 		private IApplicationState AppState { get; }

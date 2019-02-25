@@ -6,8 +6,10 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
-	// If specific window is picked, determine if window is closed
-	// If closed, cancel watch
+	/// <summary>
+	/// If specific window is picked, determine if window is closed
+	/// If closed, cancel watch
+	/// </summary>
 	internal class WindowClosedBehaviour : BaseBehaviour
 	{
 		private IApplicationState AppState { get; }

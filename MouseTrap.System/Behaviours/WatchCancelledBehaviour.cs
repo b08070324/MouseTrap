@@ -6,8 +6,10 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
-	// If specific window is picked, determine if watch is cancelled
-	// If cancelled, stop all hooks
+	/// <summary>
+	/// If specific window is picked, determine if watch is cancelled
+	/// If cancelled, stop all hooks
+	/// </summary>
 	internal class WatchCancelledBehaviour : BaseBehaviour
 	{
 		private IApplicationState AppState { get; }

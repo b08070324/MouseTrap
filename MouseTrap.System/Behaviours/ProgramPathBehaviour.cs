@@ -6,8 +6,10 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
-	// If program path is not picked, determine if program path is picked
-	// If picked, start ForegroundWindowHook
+	/// <summary>
+	/// If program path is not picked, determine if program path is picked 
+	/// If picked, start ForegroundWindowHook
+	/// </summary>
 	internal class ProgramPathBehaviour : BaseBehaviour
 	{
 		private IApplicationState AppState { get; }

@@ -7,6 +7,9 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Hooks
 {
+	/// <summary>
+	/// Interface for system hook that restricts the mouse cursor to a specified region
+	/// </summary>
 	internal interface IMouseHook : IDisposable
 	{
 		void StartHook(Dimensions region);
@@ -15,6 +18,9 @@ namespace MouseTrap.Hooks
 		void SetState(bool isRestricted);
 	}
 
+	/// <summary>
+	/// Implemention of <see cref="IMouseHook"/>
+	/// </summary>
 	internal class MouseHook : IMouseHook
 	{
 		private IntPtr _mouseHookPtr;

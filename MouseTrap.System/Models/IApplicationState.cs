@@ -2,6 +2,11 @@
 
 namespace MouseTrap.Models
 {
+	/// <summary>
+	/// Application state holds the current goal of the system
+	/// Commands can be executed by both the UI, and system behaviours acting on hook events
+	/// Changes in state are observed by UI and system behaviours
+	/// </summary>
 	public interface IApplicationState
 	{
 		// Properties

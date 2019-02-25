@@ -1,5 +1,4 @@
 ﻿using MouseTrap.Interop;
-using MouseTrap.Models;
 using System;
 
 namespace MouseTrap.Models

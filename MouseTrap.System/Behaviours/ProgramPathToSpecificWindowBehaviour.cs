@@ -5,8 +5,10 @@ using static System.Diagnostics.Debug;
 
 namespace MouseTrap.Behaviours
 {
-	// If program path is picked, determine if fg change matches path
-	// If match, pick specific window automatically
+	/// <summary>
+	/// If program path is picked, determine if a new foreground windows matches path
+	/// If match, switch to watching specific window automatically
+	/// </summary>
 	internal class ProgramPathToSpecificWindowBehaviour : BaseBehaviour
 	{
 		private IApplicationState AppState { get; }

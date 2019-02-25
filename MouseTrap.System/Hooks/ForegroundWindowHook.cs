@@ -3,6 +3,9 @@ using System;
 
 namespace MouseTrap.Hooks
 {
+	/// <summary>
+	/// Interface for a system hook that raises an event when the foreground window changes
+	/// </summary>
 	internal interface IForegroundWindowHook
 	{
 		void StartHook();
@@ -10,6 +13,9 @@ namespace MouseTrap.Hooks
 		event EventHandler<ForegroundWindowChangedEventArgs> ForegroundWindowChanged;
 	}
 
+	/// <summary>
+	/// Implementation of <see cref="IForegroundWindowHook"/>
+	/// </summary>
 	internal sealed class ForegroundWindowHook : WinEventHook, IForegroundWindowHook
 	{
 		private uint LastProcessId { get; set; }
