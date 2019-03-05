@@ -76,7 +76,7 @@
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
-				<DataGridTemplateColumn Header="Title" Width="*">
+				<DataGridTemplateColumn Header="Title" Width="*" MinWidth="380">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<TextBlock Text="{Binding Title}" Style="{StaticResource GridText}" TextTrimming="CharacterEllipsis" />
