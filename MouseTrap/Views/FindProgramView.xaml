@@ -5,6 +5,7 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 		xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"	
 		xmlns:viewmodels="clr-namespace:MouseTrap.ViewModels"
+		xmlns:controls="clr-namespace:MouseTrap.Controls"
 		mc:Ignorable="d" 
 		d:DataContext="{d:DesignInstance viewmodels:FindProgramDesignModel, IsDesignTimeCreatable=True}"
 		d:DesignHeight="261" d:DesignWidth="478" Background="{DynamicResource Main.Background}">
@@ -13,19 +14,32 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="/MouseTrap;component/Colours.xaml" />
 			</ResourceDictionary.MergedDictionaries>
+			<Style TargetType="{x:Type controls:BarButtonControl}">
+				<Setter Property="ImageMargin" Value="0,8" />
+				<Setter Property="BorderThickness" Value="1" />
+				<Setter Property="Background" Value="#FFDDDDDD" />
+				<Setter Property="BorderBrush" Value="#FF707070" />
+				<Setter Property="HoverBackground" Value="#FFBEE6FD" />
+				<Setter Property="HoverBorder" Value="#FF3C7FB1" />
+				<Setter Property="PressedBackground" Value="#FFC4E5F6" />
+				<Setter Property="PressedBorder" Value="#FF2C628B" />
+				<Setter Property="DisabledForeground" Value="#FFF4F4F4" />
+				<Setter Property="DisabledBackground" Value="#FFADB2B5" />
+				<Setter Property="DisabledBorder" Value="#FF838383" />
+			</Style>
 		</ResourceDictionary>
 	</UserControl.Resources>
 
 	<Grid Margin="8,0,8,16">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="32" />
-			<RowDefinition Height="Auto" />
+			<RowDefinition Height="38" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*" />
 			<ColumnDefinition Width="8" />
-			<ColumnDefinition Width="42" />
+			<ColumnDefinition Width="38" />
 		</Grid.ColumnDefinitions>
 
 		<TextBlock Grid.Row="0" Grid.ColumnSpan="3" VerticalAlignment="Center">
@@ -38,9 +52,15 @@
 				 PreviewDrop="TextBox_PreviewDrop" 
 				 VerticalContentAlignment="Center" Text="{Binding Filename, UpdateSourceTrigger=PropertyChanged}" />
 
-		<Button Grid.Row="1" Grid.Column="2" Command="{Binding FindFileCommand}">
-			<emoji:TextBlock Text="📂" FontSize="20" Padding="4" />
-		</Button>
+		<controls:BarButtonControl 
+			Grid.Row="1"
+			Grid.Column="2"
+			IsTabStop="True"
+			Text=""
+			Image="/MouseTrap;component/Resources/find-rgb.png"
+			DisabledImage="/MouseTrap;component/Resources/find-bw.png"
+			Command="{Binding FindFileCommand}"
+			/>
 
 		<emoji:TextBlock Grid.Row="2" Grid.ColumnSpan="3" FontSize="48" VerticalAlignment="Center" HorizontalAlignment="Center">
 			<emoji:TextBlock.Style>

@@ -65,6 +65,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 * [denizimo01 on Pixabay](https://pixabay.com/en/mouse-mouse-icon-symbol-pc-cursor-2487884/) for the logo
 * [Patterns - WPF Apps With The Model-View-ViewModel Design Pattern](https://msdn.microsoft.com/en-us/magazine/dd419663.aspx#id0090030) for RelayCommand class
+* [Twitter Emoji glyphs](https://github.com/twitter/twemoji) (modified) licensed under CC-BY 4.0: https://creativecommons.org/licenses/by/4.0/
 
 [commit]: https://img.shields.io/github/last-commit/Temetra/MouseTrap.svg?style=flat
 [issues]: https://img.shields.io/github/issues/Temetra/MouseTrap.svg?style=flat

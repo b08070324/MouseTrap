@@ -16,6 +16,25 @@
 			</ResourceDictionary.MergedDictionaries>
 			<binding:ViewTypeToBoolConverter x:Key="CurrentViewConverter" />
 			<binding:ViewTypeToVisibilityConverter x:Key="VisibilityConverter" />
+			<Style TargetType="{x:Type controls:BarButtonControl}">
+				<Setter Property="Margin" Value="0" />
+				<Setter Property="Padding" Value="8,0" />
+				<Setter Property="Height" Value="Auto" />
+				<Setter Property="ImageMargin" Value="0,10,8,10" />
+				<Setter Property="BorderThickness" Value="0,0,0,2" />
+				<Setter Property="Foreground" Value="{StaticResource MenuButton.Default.Foreground}" />
+				<Setter Property="Background" Value="{StaticResource MenuButton.Default.Background}" />
+				<Setter Property="BorderBrush" Value="{StaticResource MenuButton.Default.BorderBrush}" />
+				<Setter Property="HoverBackground" Value="{StaticResource MenuButton.Default.Hover.Background}" />
+				<Setter Property="HoverBorder" Value="{StaticResource MenuButton.Default.BorderBrush}" />
+				<Setter Property="HoverHighlightedBackground" Value="{StaticResource MenuButton.Highlighted.Hover.Background}" />
+				<Setter Property="DisabledForeground" Value="{StaticResource MenuButton.Disabled.Foreground}" />
+				<Setter Property="DisabledBackground" Value="{StaticResource MenuButton.Disabled.Background}" />
+				<Setter Property="DisabledBorder" Value="{StaticResource MenuButton.Disabled.BorderBrush}" />
+				<Setter Property="PressedForeground" Value="{StaticResource MenuButton.Pressed.Foreground}" />
+				<Setter Property="PressedBackground" Value="{StaticResource MenuButton.Pressed.Background}" />
+				<Setter Property="PressedBorder" Value="{StaticResource MenuButton.Pressed.BorderBrush}" />
+			</Style>
 		</ResourceDictionary>
 	</UserControl.Resources>
 
@@ -37,32 +56,49 @@
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
-		<controls:BarButton Grid.Column="0" 
-			ButtonText="👉 Choose Window" 
-			ButtonPadding="8,8,8,8"
-			PressCommand="{Binding ChooseWindowCommand}" 
-			IsHighlighted="{Binding Path=CurrentView, ConverterParameter={x:Static models:ViewType.WindowList}, Converter={StaticResource CurrentViewConverter}}" IsTabStop="True" />
-		
-		<controls:BarButton Grid.Column="2" 
-			ButtonText="📂 Find Program" 
-			ButtonPadding="8,8,8,8"
-			PressCommand="{Binding FindProgramCommand}" 
-			IsHighlighted="{Binding Path=CurrentView, ConverterParameter={x:Static models:ViewType.FindProgram}, Converter={StaticResource CurrentViewConverter}}" IsTabStop="True" />
+		<controls:BarButtonControl 
+			Grid.Column="0" 
+			IsTabStop="True"
+			Text="Choose Window"
+			Image="/MouseTrap;component/Resources/pick-rgb.png"
+			DisabledImage="/MouseTrap;component/Resources/pick-bw.png"
+			Command="{Binding ChooseWindowCommand}"
+			IsHighlighted="{Binding Path=CurrentView, ConverterParameter={x:Static models:ViewType.WindowList}, Converter={StaticResource CurrentViewConverter}}"
+			/>
 
-		<controls:BarButton Grid.Column="4" 
-			ButtonText="🔑 Enable Lock" 
-			ButtonPadding="8,8,8,8"
-			PressCommand="{Binding ToggleLockCommand}" 
-			IsHighlighted="{Binding Path=CurrentView, ConverterParameter={x:Static models:ViewType.LockWindow}, Converter={StaticResource CurrentViewConverter}}" IsTabStop="True" />
+		<controls:BarButtonControl 
+			Grid.Column="2" 
+			IsTabStop="True"
+			Text="Find Program"
+			Image="/MouseTrap;component/Resources/find-rgb.png"
+			DisabledImage="/MouseTrap;component/Resources/find-bw.png"
+			Command="{Binding FindProgramCommand}"
+			IsHighlighted="{Binding Path=CurrentView, ConverterParameter={x:Static models:ViewType.FindProgram}, Converter={StaticResource CurrentViewConverter}}"
+			/>
 
-		<controls:BarButton Grid.Column="7" 
-			ButtonText="♻" 
-			ButtonPadding="2,2,2,2"
-			FontSize="22"
+		<controls:BarButtonControl 
+			Grid.Column="4" 
+			IsTabStop="True"
+			Text="Enable Lock"
+			Image="/MouseTrap;component/Resources/lock-rgb.png"
+			DisabledImage="/MouseTrap;component/Resources/lock-bw.png"
+			Command="{Binding ToggleLockCommand}"
+			IsHighlighted="{Binding Path=CurrentView, ConverterParameter={x:Static models:ViewType.LockWindow}, Converter={StaticResource CurrentViewConverter}}"
+			/>
+
+		<controls:BarButtonControl 
+			Grid.Column="7" 
+			Padding="0"
+			Width="36"
+			ImageMargin="4"
 			HorizontalAlignment="Right"
+			IsTabStop="True"
+			Text=""
+			Image="/MouseTrap;component/Resources/refresh-rgb.png"
+			DisabledImage="/MouseTrap;component/Resources/refresh-rgb.png"
+			Command="{Binding RefreshListCommand}"
 			Visibility="{Binding Path=CurrentView, ConverterParameter={x:Static models:ViewType.WindowList}, Converter={StaticResource VisibilityConverter}}"
-			PressCommand="{Binding RefreshListCommand}" 
-			IsHighlighted="False" IsTabStop="True" />
+			/>
 	</Grid>
 
 </UserControl>

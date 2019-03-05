@@ -90,10 +90,7 @@
     <Compile Include="Binding\IntToHexConverter.cs" />
     <Compile Include="Binding\ViewTypeToVisibilityConverter.cs" />
     <Compile Include="Binding\ViewTypeToBoolConverter.cs" />
-    <Compile Include="Controls\BarButton.xaml.cs">
-      <DependentUpon>BarButton.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\BarButtonBase.cs" />
+    <Compile Include="Controls\BarButtonControl.cs" />
     <Compile Include="Controls\UpArrow.xaml.cs">
       <DependentUpon>UpArrow.xaml</DependentUpon>
     </Compile>
@@ -135,10 +132,6 @@
     <Compile Include="Views\WindowListView.xaml.cs">
       <DependentUpon>WindowListView.xaml</DependentUpon>
     </Compile>
-    <Page Include="Controls\BarButton.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Controls\UpArrow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -150,6 +143,10 @@
     <Page Include="Colours.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\FindProgramView.xaml">
       <SubType>Designer</SubType>
@@ -230,6 +227,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\DefaultListIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\find-bw.png" />
+    <Resource Include="Resources\find-rgb.png" />
+    <Resource Include="Resources\lock-bw.png" />
+    <Resource Include="Resources\lock-rgb.png" />
+    <Resource Include="Resources\pick-bw.png" />
+    <Resource Include="Resources\pick-rgb.png" />
+    <Resource Include="Resources\refresh-rgb.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
