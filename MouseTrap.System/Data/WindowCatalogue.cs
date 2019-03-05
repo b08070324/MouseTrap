@@ -76,7 +76,10 @@ namespace MouseTrap.Data
 			// Ignore windows that are cloaked
 			if (NativeMethods.IsWindowCloaked(handle)) return false;
 
-			// Include app windows
+			// Exclude windows with with no title
+			if (string.IsNullOrEmpty(title)) return false;
+
+			// Include app windows even if they have tool window style
 			var windowStylesEx = NativeMethods.GetWindowStyleEx(handle);
 			var windowStylesExFilter = WindowStylesEx.WS_EX_APPWINDOW;
 			if ((windowStylesEx & windowStylesExFilter) != 0) return true;
@@ -84,9 +87,6 @@ namespace MouseTrap.Data
 			// Exclude tool windows, and windows that don't become foreground window when clicked
 			windowStylesExFilter = WindowStylesEx.WS_EX_TOOLWINDOW | WindowStylesEx.WS_EX_NOACTIVATE;
 			if ((windowStylesEx & windowStylesExFilter) != 0) return false;
-
-			// Exclude windows with with no title
-			if (string.IsNullOrEmpty(title)) return false;
 
 			// Window should be included
 			return true;
