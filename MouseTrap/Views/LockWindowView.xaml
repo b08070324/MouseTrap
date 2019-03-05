@@ -73,7 +73,7 @@
 
 			<Border x:Name="winBox" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" 
 					Margin="8" BorderThickness="2" BorderBrush="Black" SnapsToDevicePixels="True">
-				<emoji:TextBlock Text="👁" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="32">
+				<emoji:TextBlock Text="🎯" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="32">
 					<emoji:TextBlock.Style>
 						<Style TargetType="{x:Type emoji:TextBlock}">
 							<Setter Property="Visibility" Value="Collapsed" />
